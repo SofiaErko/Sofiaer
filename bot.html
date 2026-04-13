@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>♻️ Эко-бот: Раздельный сбор мусора</title>
+    <title>🌍 Эко-Портал | Раздельный сбор мусора</title>
     <style>
         * {
             margin: 0;
@@ -13,54 +13,117 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c32 0%, #2a4a3a 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
 
-        .chat-container {
-            width: 100%;
-            max-width: 600px;
-            height: 85vh;
+        /* Главный контейнер */
+        .portal-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .main-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .main-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        /* Навигация по режимам */
+        .mode-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-tab {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .mode-tab.active {
+            background: #4caf50;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+        }
+
+        /* Контейнеры режимов */
+        .mode-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .mode-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Общие стили для карточек */
+        .card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-left: 4px solid #4caf50;
+            padding-left: 15px;
+        }
+
+        /* ========== РЕЖИМ 1: ЧАТ-БОТ ========== */
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: 70vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         .chat-header {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 15px 20px;
         }
 
-        .chat-header h1 {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            font-size: 0.85em;
-            opacity: 0.95;
-        }
-
-        .stats-bar {
-            background: #f0f2f5;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8em;
-            color: #555;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .messages {
+        .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
@@ -70,27 +133,22 @@
         .message {
             margin-bottom: 15px;
             display: flex;
-            animation: fadeIn 0.3s ease-in;
+            animation: slideIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
+        @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateX(-20px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateX(0);
             }
         }
 
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
+        .message.bot { justify-content: flex-start; }
+        .message.user { justify-content: flex-end; }
 
         .message-content {
             max-width: 70%;
@@ -101,7 +159,6 @@
 
         .bot .message-content {
             background: white;
-            color: #333;
             border: 1px solid #ddd;
             border-bottom-left-radius: 4px;
         }
@@ -116,10 +173,9 @@
             padding: 10px 20px;
             background: white;
             border-top: 1px solid #ddd;
-            overflow-x: auto;
-            white-space: nowrap;
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .quick-btn {
@@ -128,7 +184,6 @@
             padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.85em;
             transition: all 0.3s;
         }
 
@@ -138,7 +193,7 @@
             transform: translateY(-2px);
         }
 
-        .input-area {
+        .chat-input-area {
             display: flex;
             padding: 20px;
             background: white;
@@ -146,342 +201,596 @@
             gap: 10px;
         }
 
-        #userInput {
+        .chat-input {
             flex: 1;
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 25px;
             font-size: 1em;
             outline: none;
-            transition: border-color 0.3s;
         }
 
-        #userInput:focus {
+        .chat-input:focus {
             border-color: #2ecc71;
         }
 
-        #sendBtn {
+        .send-btn {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
             border: none;
             padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
+        }
+
+        /* ========== РЕЖИМ 2: КАЛЬКУЛЯТОР ЭКО-СЛЕДА ========== */
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             font-size: 1em;
-            transition: transform 0.2s;
         }
 
-        #sendBtn:hover {
-            transform: scale(1.05);
+        .result-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
         }
 
-        .typing-indicator {
-            display: none;
-            padding: 10px 20px;
-            background: white;
-            border-radius: 18px;
-            width: fit-content;
+        .carbon-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        /* ========== РЕЖИМ 3: СОРТИРОВКА ИГРА ========== */
+        .game-area {
+            text-align: center;
+        }
+
+        .waste-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        .bins {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .bin {
+            background: #f0f2f5;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .bin:hover {
+            transform: translateY(-5px);
+            background: #e0e4e8;
+        }
+
+        .bin.recycle { border-top: 4px solid #4caf50; }
+        .bin.general { border-top: 4px solid #9e9e9e; }
+        .bin.hazardous { border-top: 4px solid #f44336; }
+        .bin.organic { border-top: 4px solid #8bc34a; }
+
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* ========== РЕЖИМ 4: КАРТА ПУНКТОВ ПРИЁМА ========== */
+        .recycle-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .point-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .point-card h4 {
+            color: #2c3e50;
             margin-bottom: 10px;
         }
 
-        .typing-indicator span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #999;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
+        /* ========== РЕЖИМ 5: ЭКО-СОВЕТЫ ДНЯ ========== */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
+        .tip-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
+        .tip-card:hover {
+            transform: translateY(-5px);
         }
 
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.5;
+        /* ========== РЕЖИМ 6: ЭКО-ЧЕЛЛЕНДЖ ========== */
+        .challenge-card {
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .challenge-btn {
+            background: white;
+            color: #ff5722;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .mode-tab {
+                padding: 8px 16px;
+                font-size: 0.85em;
             }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 600px) {
+            
             .message-content {
                 max-width: 85%;
             }
             
-            .quick-buttons {
-                padding: 10px;
-            }
-            
-            .quick-btn {
-                font-size: 0.75em;
-                padding: 6px 12px;
+            .calculator-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>♻️ Эко-бот: Разделяй мусор</h1>
-            <p>Спроси, куда выбросить отходы</p>
+    <div class="portal-container">
+        <div class="main-header">
+            <h1>🌍 Эко-Портал "Зелёная Планета"</h1>
+            <p>6 мощных инструментов для осознанного потребления и сортировки отходов</p>
         </div>
-        <div class="stats-bar">
-            <span>📊 Знаю <span id="wasteCount">0</span> видов отходов</span>
-            <span>💚 Сообщений: <span id="msgCount">0</span></span>
+
+        <!-- Навигация по режимам -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" onclick="switchMode('chat')">💬 Чат-бот</button>
+            <button class="mode-tab" onclick="switchMode('calculator')">📊 CO2 Калькулятор</button>
+            <button class="mode-tab" onclick="switchMode('game')">🎮 Сортировка-игра</button>
+            <button class="mode-tab" onclick="switchMode('map')">🗺️ Пункты приёма</button>
+            <button class="mode-tab" onclick="switchMode('tips')">💡 Эко-советы</button>
+            <button class="mode-tab" onclick="switchMode('challenge')">🏆 Челленджи</button>
         </div>
-        <div class="messages" id="messages">
-            <div class="message bot">
-                <div class="message-content">
-                    🌱 Привет! Я помогу тебе сортировать мусор.<br><br>
-                    📝 Просто напиши, что хочешь выбросить:<br>
-                    • пластиковая бутылка<br>
-                    • батарейка<br>
-                    • стекло<br>
-                    • бумага<br><br>
-                    Или выбери быстрый вариант ниже 👇
+
+        <!-- РЕЖИМ 1: ЧАТ-БОТ -->
+        <div id="chat-mode" class="mode-container active">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>♻️ Эко-бот сортировки</h3>
+                    <p>Спроси, куда выбросить любой отход</p>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-content">
+                            🌱 Привет! Я помогу сортировать мусор.<br><br>
+                            Напиши, что хочешь выбросить:<br>
+                            • пластиковая бутылка<br>
+                            • батарейка<br>
+                            • стекло<br>
+                            • бумага<br>
+                            • старая одежда
+                        </div>
+                    </div>
+                </div>
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="sendQuickMessage('пластиковая бутылка')">🥤 Пластик</button>
+                    <button class="quick-btn" onclick="sendQuickMessage('батарейка')">🔋 Батарейка</button>
+                    <button class="quick-btn" onclick="sendQuickMessage('стекло')">🥃 Стекло</button>
+                    <button class="quick-btn" onclick="sendQuickMessage('бумага')">📄 Бумага</button>
+                    <button class="quick-btn" onclick="sendQuickMessage('банан')">🍌 Органика</button>
+                    <button class="quick-btn" onclick="sendQuickMessage('одежда')">👕 Одежда</button>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Напиши отход..." onkeypress="handleChatKeyPress(event)">
+                    <button class="send-btn" onclick="sendChatMessage()">Отправить</button>
                 </div>
             </div>
         </div>
-        <div class="quick-buttons">
-            <button class="quick-btn" onclick="sendQuickMessage('пластиковая бутылка')">🥤 Пластик</button>
-            <button class="quick-btn" onclick="sendQuickMessage('батарейка')">🔋 Батарейка</button>
-            <button class="quick-btn" onclick="sendQuickMessage('стекло')">🥃 Стекло</button>
-            <button class="quick-btn" onclick="sendQuickMessage('бумага')">📄 Бумага</button>
-            <button class="quick-btn" onclick="sendQuickMessage('банан')">🍌 Органика</button>
-            <button class="quick-btn" onclick="sendQuickMessage('одежда')">👕 Одежда</button>
+
+        <!-- РЕЖИМ 2: КАЛЬКУЛЯТОР УГЛЕРОДНОГО СЛЕДА -->
+        <div id="calculator-mode" class="mode-container">
+            <div class="card">
+                <h3 class="card-title">📊 Калькулятор углеродного следа</h3>
+                <div class="calculator-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>🚗 Автомобиль (км в день)</label>
+                            <input type="number" id="carDistance" value="20" step="5">
+                        </div>
+                        <div class="input-group">
+                            <label>✈️ Перелёты в год</label>
+                            <input type="number" id="flights" value="0" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label>💡 Электричество (кВт·ч в месяц)</label>
+                            <input type="number" id="electricity" value="200" step="50">
+                        </div>
+                        <div class="input-group">
+                            <label>🍔 Мясо (раз в неделю)</label>
+                            <select id="meat">
+                                <option value="0">Нет</option>
+                                <option value="1">1-2 раза</option>
+                                <option value="2" selected>3-5 раз</option>
+                                <option value="3">Каждый день</option>
+                            </select>
+                        </div>
+                        <button class="send-btn" onclick="calculateCarbon()" style="width: 100%; margin-top: 10px;">Рассчитать</button>
+                    </div>
+                    <div class="result-card" id="carbonResult">
+                        <h4>Ваш углеродный след</h4>
+                        <div class="carbon-value" id="carbonValue">0</div>
+                        <p>тонн CO₂ в год</p>
+                        <div id="carbonTip"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Напиши отход..." onkeypress="handleKeyPress(event)">
-            <button id="sendBtn" onclick="sendMessage()">Отправить</button>
+
+        <!-- РЕЖИМ 3: ИГРА-СОРТИРОВКА -->
+        <div id="game-mode" class="mode-container">
+            <div class="card">
+                <h3 class="card-title">🎮 Игра: Рассортируй мусор!</h3>
+                <div class="game-area">
+                    <div class="score">Счёт: <span id="score">0</span></div>
+                    <div class="waste-item" id="wasteItem">🥤 Пластиковая бутылка</div>
+                    <div class="bins" id="bins">
+                        <div class="bin recycle" onclick="sortWaste('recycle')">♻️ Переработка</div>
+                        <div class="bin general" onclick="sortWaste('general')">🚮 Смешанные</div>
+                        <div class="bin hazardous" onclick="sortWaste('hazardous')">⚠️ Опасные</div>
+                        <div class="bin organic" onclick="sortWaste('organic')">🍂 Органика</div>
+                    </div>
+                    <div id="gameMessage" style="margin-top: 20px; font-weight: bold;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 4: КАРТА ПУНКТОВ ПРИЁМА -->
+        <div id="map-mode" class="mode-container">
+            <div class="card">
+                <h3 class="card-title">🗺️ Пункты приёма вторсырья</h3>
+                <div class="recycle-points" id="recyclePoints"></div>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 5: ЭКО-СОВЕТЫ -->
+        <div id="tips-mode" class="mode-container">
+            <div class="card">
+                <h3 class="card-title">💡 365 эко-советов для жизни</h3>
+                <div class="tips-grid" id="tipsGrid"></div>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 6: ЭКО-ЧЕЛЛЕНДЖИ -->
+        <div id="challenge-mode" class="mode-container">
+            <div class="card">
+                <h3 class="card-title">🏆 Эко-челленджи на неделю</h3>
+                <div id="challengeContent"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- БАЗА ЗНАНИЙ (расширенная) ---
+        // ========== БАЗА ЗНАНИЙ ДЛЯ ЧАТ-БОТА ==========
         const wasteRules = {
-            // Пластик
-            "пластиковая бутылка": "♻️ ПЕРЕРАБОТКА\n\n✅ Чистую, сжатую, без крышки\n🗑️ Синий контейнер\n💡 Крышки собирай отдельно!",
+            "пластиковая бутылка": "♻️ ПЕРЕРАБОТКА\n✅ Чистую, сжатую, без крышки\n🗑️ Синий контейнер",
             "пэт бутылка": "♻️ ПЕРЕРАБОТКА (PET)\n🗑️ Синий контейнер",
             "бутылка": "♻️ ПЕРЕРАБОТКА (если пластик)\n❓ Уточни: пластик или стекло?",
-            "крышка": "♻️ ПЕРЕРАБОТКА (отдельно от бутылки)\n💡 Многие фонды собирают крышки на благотворительность",
-            "стаканчик от кофе": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ У него пластиковое покрытие, не перерабатывается",
-            "кофейный стаканчик": "🚮 СМЕШАННЫЕ ОТХОДЫ",
-            "пакет": "🚮 СМЕШАННЫЕ ОТХОДЫ\n💡 Лучше использовать эко-сумку!",
-            "плёнка": "🚮 СМЕШАННЫЕ ОТХОДЫ",
-            "пенопласт": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Не перерабатывается",
-            "одноразовая посуда": "🚮 СМЕШАННЫЕ ОТХОДЫ\n💡 Используй многоразовую!",
-            
-            // Стекло
-            "стеклянная банка": "♻️ ПЕРЕРАБОТКА\n✅ Сполоснуть, снять крышку\n🗑️ Зелёный контейнер",
-            "стекло": "♻️ ПЕРЕРАБОТКА\n🗑️ Зелёный контейнер\n⚠️ Не бей!",
-            "бутылка стеклянная": "♻️ ПЕРЕРАБОТКА\n🗑️ Зелёный контейнер",
-            "банка": "♻️ ПЕРЕРАБОТКА (если стекло или металл)",
-            
-            // Металл
-            "алюминиевая банка": "♻️ ПЕРЕРАБОТКА\n✅ Сполоснуть, смять\n🗑️ Синий контейнер\n💡 Переработка алюминия экономит 95% энергии!",
-            "жестяная банка": "♻️ ПЕРЕРАБОТКА (металл)\n🗑️ Синий контейнер",
-            "консервная банка": "♻️ ПЕРЕРАБОТКА\n✅ Вымыть, убрать этикетку",
-            
-            // Бумага
-            "бумага": "♻️ ПЕРЕРАБОТКА\n✅ Чистая, не жирная\n🗑️ Синий контейнер\n💡 1 тонна бумаги = 17 спасённых деревьев!",
-            "картон": "♻️ ПЕРЕРАБОТКА\n✅ Сложить, убрать скотч\n🗑️ Синий контейнер",
-            "газета": "♻️ ПЕРЕРАБОТКА\n🗑️ Синий контейнер",
-            "журнал": "♻️ ПЕРЕРАБОТКА\n⚠️ Удалить скрепки и пластиковую обложку",
-            "чеки": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Термобумага НЕ перерабатывается!",
-            "туалетная бумага": "🚮 СМЕШАННЫЕ ОТХОДЫ (можно в унитаз, если нет химии)",
-            
-            // Опасные
-            "батарейка": "⚠️ ОПАСНЫЕ ОТХОДЫ\n❌ НИ В КОЕМ СЛУЧАЕ в мусор!\n✅ Сдать в спецконтейнер (магазины, ТЦ)\n💡 Одна батарейка загрязняет 20 м² земли!",
+            "батарейка": "⚠️ ОПАСНЫЕ ОТХОДЫ\n❌ НИ В КОЕМ СЛУЧАЕ в мусор!\n✅ Сдать в спецконтейнер (магазины, ТЦ)",
             "батарейки": "⚠️ ОПАСНЫЕ ОТХОДЫ\n🗑️ Только в спецконтейнер",
-            "пальчиковая батарейка": "⚠️ ОПАСНЫЕ ОТХОДЫ\n🗑️ Пункты приёма батареек",
+            "стекло": "♻️ ПЕРЕРАБОТКА\n🗑️ Зелёный контейнер\n⚠️ Не бей!",
+            "стеклянная банка": "♻️ ПЕРЕРАБОТКА\n✅ Сполоснуть, снять крышку\n🗑️ Зелёный контейнер",
+            "бумага": "♻️ ПЕРЕРАБОТКА\n✅ Чистая, не жирная\n🗑️ Синий контейнер",
+            "картон": "♻️ ПЕРЕРАБОТКА\n✅ Сложить, убрать скотч\n🗑️ Синий контейнер",
+            "чеки": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Термобумага НЕ перерабатывается!",
+            "банан": "🍂 ОРГАНИКА / СМЕШАННЫЕ\n🗑️ Серый контейнер\n💡 Можно в компост!",
+            "яблоко": "🍂 ОРГАНИКА / СМЕШАННЫЕ\n🗑️ Серый контейнер",
+            "одежда": "👕 ТЕКСТИЛЬ\n✅ Отдать в контейнер для вещей",
+            "стаканчик от кофе": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ У него пластиковое покрытие, не перерабатывается",
             "лампочка": "⚠️ ОПАСНЫЕ ОТХОДЫ (ртуть)\n🗑️ Спецконтейнер для ламп",
-            "энергосберегающая лампа": "⚠️ ОПАСНЫЕ ОТХОДЫ\n❌ Не в стекло!",
-            "градусник": "⚠️ ОПАСНЫЕ ОТХОДЫ (ртуть)\n🚨 Вызвать МЧС!",
-            "аккумулятор": "⚠️ ОПАСНЫЕ ОТХОДЫ\n🗑️ Пункты приёма",
-            "краска": "⚠️ ОПАСНЫЕ ОТХОДЫ\n❌ Не сливать в раковину!",
-            "лекарства": "⚠️ ОПАСНЫЕ ОТХОДЫ\n✅ Сдать в аптеку на утилизацию",
-            "ампула": "⚠️ ОПАСНЫЕ ОТХОДЫ\n🗑️ Контейнер для острых предметов",
-            
-            // Органика
-            "яблоко": "🍂 ОРГАНИКА / СМЕШАННЫЕ\n🗑️ Серый контейнер\n💡 Можно в компост!",
-            "банан": "🍂 ОРГАНИКА / СМЕШАННЫЕ\n🗑️ Серый контейнер",
-            "огрызок": "🍂 ОРГАНИКА",
-            "очистки": "🍂 ОРГАНИКА\n💡 Сделай компостную яму!",
-            "скорлупа": "🍂 ОРГАНИКА",
-            "чайный пакетик": "🍂 ОРГАНИКА / СМЕШАННЫЕ\n⚠️ Если с пластиком - в смешанные",
-            
-            // Текстиль
-            "одежда": "👕 ТЕКСТИЛЬ\n✅ Отдать в контейнер для вещей\n💡 Хорошую одежду можно перепродать!",
-            "футболка": "👕 ТЕКСТИЛЬ\n🗑️ Контейнер для одежды",
-            "джинсы": "👕 ТЕКСТИЛЬ\n♻️ Некоторые бренды принимают на переработку",
-            "носки": "🚮 СМЕШАННЫЕ ОТХОДЫ (если старые)",
-            "игрушка": "👕 ТЕКСТИЛЬ / БЛАГОТВОРИТЕЛЬНОСТЬ\n✅ Если целая - отдать",
-            
-            // Электроника
-            "телефон": "📱 ЭЛЕКТРОНИКА\n✅ Сдать в пункт утилизации\n❌ Не в мусор!",
-            "ноутбук": "📱 ЭЛЕКТРОНИКА\n🗑️ Спецпункты приёма",
-            "зарядка": "📱 ЭЛЕКТРОНИКА\n♻️ Принимают в некоторых магазинах",
-            "наушники": "🚮 СМЕШАННЫЕ ОТХОДЫ (мелкая электроника)",
-            
-            // Другое
-            "зубная щётка": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Смешанные материалы не перерабатываются",
-            "бутылка от масла": "⚠️ ОПАСНЫЕ (если с маслом)\n✅ Вытереть и в переработку",
-            "сигарета": "🚮 СМЕШАННЫЕ ОТХОДЫ\n❌ Не бросать на землю!",
-            "окурок": "🚮 СМЕШАННЫЕ ОТХОДЫ",
-            "маска медицинская": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Если использована - в смешанные",
-            "перчатка": "🚮 СМЕШАННЫЕ ОТХОДЫ",
-            "бумажный стаканчик": "🚮 СМЕШАННЫЕ ОТХОДЫ\n⚠️ Из-за пластикового слоя не перерабатывается",
-            "трубочка": "🚮 СМЕШАННЫЕ ОТХОДЫ\n💡 Используй многоразовые трубочки!"
+            "телефон": "📱 ЭЛЕКТРОНИКА\n✅ Сдать в пункт утилизации",
+            "алюминиевая банка": "♻️ ПЕРЕРАБОТКА\n✅ Сполоснуть, смять\n🗑️ Синий контейнер"
         };
 
         // Эко-советы
-        const ecoTips = [
+        const ecoTipsList = [
             "💡 Перед переработкой ополосни упаковку!",
             "🌍 1 батарейка загрязняет 20 м² земли и 400 л воды!",
             "💡 Сминай пластиковые бутылки - так они занимают меньше места",
             "♻️ Переработка алюминия экономит 95% энергии",
             "🌱 Компостируй органику - это бесплатное удобрение!",
-            "💡 Крышечки можно сдавать на благотворительность",
             "📦 Используй многоразовые сумки вместо пакетов",
             "💧 Не выливай масло в раковину - 1 литр загрязняет 1000 л воды!",
-            "👕 Сдавай старую одежду на переработку или в благотворительность",
-            "📱 Сдавай электронику в утилизацию - она содержит ценные металлы"
+            "🚿 Принимай душ вместо ванны - экономишь 100 литров воды",
+            "💡 Выключай свет, выходя из комнаты",
+            "🔋 Используй аккумуляторы вместо батареек",
+            "🥤 Откажись от пластиковых трубочек",
+            "📰 Покупай товары с минимальной упаковкой"
         ];
 
-        let messageCount = 0;
-        
-        // Обновляем счётчик видов отходов
-        document.getElementById('wasteCount').innerText = Object.keys(wasteRules).length;
+        // ========== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ==========
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`${mode}-mode`).classList.add('active');
+            
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Обновляем данные при переключении
+            if (mode === 'map') loadRecyclePoints();
+            if (mode === 'tips') loadTips();
+            if (mode === 'challenge') loadChallenge();
+        }
 
-        // Функция добавления сообщения
-        function addMessage(text, isUser = false) {
-            const messagesDiv = document.getElementById('messages');
+        // ========== ЧАТ-БОТ ==========
+        function addChatMessage(text, isUser = false) {
+            const messagesDiv = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-            
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
             contentDiv.innerHTML = text.replace(/\n/g, '<br>');
-            
             messageDiv.appendChild(contentDiv);
             messagesDiv.appendChild(messageDiv);
-            
-            // Прокрутка вниз
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            if (!isUser) {
-                messageCount++;
-                document.getElementById('msgCount').innerText = messageCount;
-            }
-        }
-
-        // Показать индикатор печати
-        function showTyping() {
-            const messagesDiv = document.getElementById('messages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'typing-indicator';
-            typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = '<span></span><span></span><span></span>';
-            messagesDiv.appendChild(typingDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        function hideTyping() {
-            const typing = document.getElementById('typingIndicator');
-            if (typing) typing.remove();
-        }
-
-        // Поиск ответа
-        function getBotResponse(userInput) {
-            const input = userInput.toLowerCase().trim();
-            
-            // Прямое совпадение
-            if (wasteRules[input]) {
-                return wasteRules[input];
-            }
-            
-            // Поиск по ключевым словам
+        function getBotResponse(input) {
+            const userInput = input.toLowerCase().trim();
+            if (wasteRules[userInput]) return wasteRules[userInput];
             for (let [keyword, response] of Object.entries(wasteRules)) {
-                if (input.includes(keyword)) {
-                    // Иногда добавляем эко-совет
-                    if (response.includes('♻️') && Math.random() < 0.3) {
-                        const randomTip = ecoTips[Math.floor(Math.random() * ecoTips.length)];
-                        return response + '\n\n' + randomTip;
-                    }
-                    return response;
-                }
+                if (userInput.includes(keyword)) return response;
             }
-            
-            // Если не найдено
-            return "🤔 Я не знаю этот тип отхода.\n\nПопробуй написать иначе:\n• пластиковая бутылка\n• батарейка\n• стекло\n• бумага\n• одежда\n\nИли уточни, что именно ты хочешь выбросить?";
+            return "🤔 Не знаю этот отход. Попробуй: пластиковая бутылка, батарейка, стекло, бумага, одежда";
         }
 
-        // Отправить сообщение
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
             const message = input.value.trim();
-            
             if (!message) return;
-            
-            // Показываем сообщение пользователя
-            addMessage(message, true);
+            addChatMessage(message, true);
             input.value = '';
-            
-            // Показываем индикатор печати
-            showTyping();
-            
-            // Имитация задержки бота
             setTimeout(() => {
-                hideTyping();
                 const response = getBotResponse(message);
-                addMessage(response, false);
-            }, 500);
+                addChatMessage(response, false);
+            }, 300);
         }
 
-        // Быстрые сообщения
         function sendQuickMessage(text) {
-            document.getElementById('userInput').value = text;
-            sendMessage();
+            document.getElementById('chatInput').value = text;
+            sendChatMessage();
         }
 
-        // Обработка Enter
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        // ========== КАЛЬКУЛЯТОР УГЛЕРОДНОГО СЛЕДА ==========
+        function calculateCarbon() {
+            let carKm = parseFloat(document.getElementById('carDistance').value) || 0;
+            let flights = parseFloat(document.getElementById('flights').value) || 0;
+            let electricity = parseFloat(document.getElementById('electricity').value) || 0;
+            let meat = parseInt(document.getElementById('meat').value);
+            
+            let carbon = 0;
+            carbon += carKm * 365 * 0.00012; // 120g CO2/km
+            carbon += flights * 0.5; // 0.5 тонны на перелёт
+            carbon += electricity * 12 * 0.0004; // 0.4kg CO2/kWh
+            carbon += meat * 0.5; // дополнительный след от мяса
+            
+            document.getElementById('carbonValue').innerText = carbon.toFixed(1);
+            
+            let tip = "";
+            if (carbon > 10) tip = "⚠️ Высокий уровень! Попробуйте использовать общественный транспорт";
+            else if (carbon > 5) tip = "👍 Хорошо, но есть куда расти";
+            else tip = "🌟 Отлично! Вы заботитесь о планете!";
+            document.getElementById('carbonTip').innerHTML = `<p style="margin-top: 15px;">${tip}</p>`;
+        }
+
+        // ========== ИГРА-СОРТИРОВКА ==========
+        const gameItems = [
+            { name: "🥤 Пластиковая бутылка", type: "recycle" },
+            { name: "🔋 Батарейка", type: "hazardous" },
+            { name: "🍌 Банан", type: "organic" },
+            { name: "📄 Газета", type: "recycle" },
+            { name: "💡 Лампочка", type: "hazardous" },
+            { name: "🥫 Алюминиевая банка", type: "recycle" },
+            { name: "🧃 Стаканчик от кофе", type: "general" },
+            { name: "🧥 Старая одежда", type: "recycle" },
+            { name: "🔌 Сломанный телефон", type: "hazardous" },
+            { name: "🍎 Огрызок", type: "organic" }
+        ];
+        
+        let currentItem = 0;
+        let score = 0;
+        
+        function loadGameItem() {
+            if (currentItem >= gameItems.length) {
+                document.getElementById('wasteItem').innerHTML = "🎉 Поздравляю! Игра пройдена! 🎉";
+                document.getElementById('gameMessage').innerHTML = `Финальный счёт: ${score}/${gameItems.length}`;
+                return;
+            }
+            document.getElementById('wasteItem').innerHTML = gameItems[currentItem].name;
+        }
+        
+        function sortWaste(binType) {
+            if (currentItem >= gameItems.length) return;
+            const correctType = gameItems[currentItem].type;
+            if (binType === correctType) {
+                score++;
+                document.getElementById('score').innerText = score;
+                document.getElementById('gameMessage').innerHTML = "✅ Правильно! +1 очко";
+                document.getElementById('gameMessage').style.color = "green";
+            } else {
+                document.getElementById('gameMessage').innerHTML = `❌ Неправильно! Правильный ответ: ${correctType === 'recycle' ? 'Переработка' : correctType === 'hazardous' ? 'Опасные' : correctType === 'organic' ? 'Органика' : 'Смешанные'}`;
+                document.getElementById('gameMessage').style.color = "red";
+            }
+            currentItem++;
+            setTimeout(() => {
+                document.getElementById('gameMessage').innerHTML = "";
+                loadGameItem();
+            }, 1000);
+        }
+        
+        function resetGame() {
+            currentItem = 0;
+            score = 0;
+            document.getElementById('score').innerText = score;
+            loadGameItem();
+        }
+
+        // ========== ПУНКТЫ ПРИЁМА ==========
+        const recyclePoints = [
+            { name: "Эко-центр 'Сборка'", address: "ул. Зелёная, 15", items: "Пластик, стекло, бумага, батарейки" },
+            { name: "Пункт приёма 'Чистый мир'", address: "пр. Мира, 88", items: "Макулатура, металл, одежда" },
+            { name: "Контейнер для батареек", address: "ТЦ 'Планета', 1 этаж", items: "Батарейки, аккумуляторы" },
+            { name: "Эко-такси 'Зелёный дракон'", address: "выезд по городу", items: "Крупногабарит, электроника" }
+        ];
+        
+        function loadRecyclePoints() {
+            const container = document.getElementById('recyclePoints');
+            container.innerHTML = recyclePoints.map(point => `
+                <div class="point-card">
+                    <h4>📍 ${point.name}</h4>
+                    <p>🏠 ${point.address}</p>
+                    <p>♻️ Принимает: ${point.items}</p>
+                </div>
+            `).join('');
+        }
+
+        // ========== ЗАГРУЗКА СОВЕТОВ ==========
+        function loadTips() {
+            const container = document.getElementById('tipsGrid');
+            const shuffled = [...ecoTipsList].sort(() => Math.random() - 0.5);
+            container.innerHTML = shuffled.slice(0, 9).map(tip => `
+                <div class="tip-card">
+                    <p style="font-size: 2em;">${tip.split(' ')[0]}</p>
+                    <p>${tip}</p>
+                </div>
+            `).join('');
+        }
+
+        // ========== ЭКО-ЧЕЛЛЕНДЖИ ==========
+        const challenges = [
+            { day: "Понедельник", task: "Не используй пластиковые пакеты", points: 10 },
+            { day: "Вторник", task: "Сортировка: отдели пластик от смешанных", points: 15 },
+            { day: "Среда", task: "Выключи свет на 1 час днём", points: 10 },
+            { day: "Четверг", task: "Сдай батарейки в пункт приёма", points: 20 },
+            { day: "Пятница", task: "Купи многоразовую бутылку для воды", points: 25 },
+            { day: "Суббота", task: "Сделай компост из органики", points: 20 },
+            { day: "Воскресенье", task: "Поделись эко-советом с другом", points: 15 }
+        ];
+        
+        let challengeScore = 0;
+        
+        function loadChallenge() {
+            const container = document.getElementById('challengeContent');
+            container.innerHTML = `
+                <div class="challenge-card">
+                    <h2>🏆 Недельный эко-челлендж</h2>
+                    <div id="challengeList"></div>
+                    <div class="score">🏅 Всего очков: <span id="challengeScore">${challengeScore}</span></div>
+                    <button class="challenge-btn" onclick="completeChallenge()">✅ Выполнил сегодняшнее задание</button>
+                    <button class="challenge-btn" onclick="resetChallenge()" style="background: #ff9800; margin-left: 10px;">🔄 Сбросить</button>
+                </div>
+            `;
+            updateChallengeList();
+        }
+        
+        function updateChallengeList() {
+            const today = new Date().getDay();
+            const dayIndex = today === 0 ? 6 : today - 1;
+            const listDiv = document.getElementById('challengeList');
+            if (listDiv) {
+                listDiv.innerHTML = challenges.map((ch, i) => `
+                    <div style="background: rgba(255,255,255,0.2); margin: 10px 0; padding: 10px; border-radius: 10px;">
+                        <strong>${ch.day}:</strong> ${ch.task} <span style="float: right;">+${ch.points} очков</span>
+                        ${i === dayIndex ? '<br><span style="color: #ffeb3b;">⭐ Сегодняшний челлендж!</span>' : ''}
+                    </div>
+                `).join('');
             }
         }
-
-        // Сохраняем базу в localStorage (для статистики)
-        function saveStats() {
-            localStorage.setItem('ecoBotStats', JSON.stringify({
-                messages: messageCount,
-                lastVisit: new Date().toISOString()
-            }));
+        
+        function completeChallenge() {
+            const today = new Date().getDay();
+            const dayIndex = today === 0 ? 6 : today - 1;
+            challengeScore += challenges[dayIndex].points;
+            document.getElementById('challengeScore').innerText = challengeScore;
+            alert(`🎉 Молодец! +${challenges[dayIndex].points} очков!\nВсего: ${challengeScore} очков`);
+        }
+        
+        function resetChallenge() {
+            challengeScore = 0;
+            document.getElementById('challengeScore').innerText = challengeScore;
         }
 
-        // Загружаем статистику
-        function loadStats() {
-            const stats = localStorage.getItem('ecoBotStats');
-            if (stats) {
-                const data = JSON.parse(stats);
-                messageCount = data.messages || 0;
-                document.getElementById('msgCount').innerText = messageCount;
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        calculateCarbon();
+        loadGameItem();
+        loadRecyclePoints();
+        loadTips();
+        loadChallenge();
+        
+        // Автообновление советов каждый час
+        setInterval(() => {
+            if (document.getElementById('tips-mode').classList.contains('active')) {
+                loadTips();
             }
-        }
-
-        // Автосохранение статистики
-        setInterval(saveStats, 10000);
-        loadStats();
+        }, 3600000);
     </script>
 </body>
 </html>
