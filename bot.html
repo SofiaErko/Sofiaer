@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌳 Управление озеленением Москвы — полная система (30+ растений)</title>
+    <title>🌳 Управление озеленением Москвы — мега-система</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -40,12 +40,14 @@
             background: var(--card-bg);
             padding: 10px 20px 0 20px;
             border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
         }
         .nav-link {
             color: var(--text-main);
             font-weight: 600;
             border: none;
-            padding: 12px 24px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
         }
         .nav-link.active {
             background: var(--accent);
@@ -78,7 +80,7 @@
             border: 1px solid var(--border-color);
         }
         .user-msg .bubble { background: var(--accent); color: white; border: none; }
-        .plant-card, .task-card, .order-item {
+        .plant-card, .task-card, .order-item, .disease-card {
             background: var(--bg-body);
             border-radius: 20px;
             padding: 12px;
@@ -89,8 +91,8 @@
             background: var(--border-color);
             border: none;
             border-radius: 30px;
-            padding: 5px 15px;
-            font-size: 0.8rem;
+            padding: 5px 12px;
+            font-size: 0.75rem;
             margin: 3px;
             color: var(--text-main);
         }
@@ -107,15 +109,14 @@
             color: white;
             font-size: 1.5rem;
         }
-        .plant-filter {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
+        .favorite-star {
+            cursor: pointer;
+            color: gold;
+            font-size: 1.2rem;
         }
         @media (max-width: 768px) {
             .tab-content { padding: 15px; }
-            .bubble { max-width: 95%; }
+            .nav-link { padding: 8px 12px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -125,11 +126,14 @@
     <div class="nav-tabs-custom">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item"><button class="nav-link active" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat"><i class="fas fa-comment-dots"></i> Чат-эксперт</button></li>
-            <li class="nav-item"><button class="nav-link" id="plants-tab" data-bs-toggle="tab" data-bs-target="#plants"><i class="fas fa-leaf"></i> Справочник растений</button></li>
-            <li class="nav-item"><button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar"><i class="fas fa-calendar-alt"></i> Календарь работ</button></li>
-            <li class="nav-item"><button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"><i class="fas fa-clipboard-list"></i> Журнал заявок</button></li>
-            <li class="nav-item"><button class="nav-link" id="season-tab" data-bs-toggle="tab" data-bs-target="#season"><i class="fas fa-sun"></i> Сезонные советы</button></li>
-            <li class="nav-item"><button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup"><i class="fas fa-database"></i> Резервное копирование</button></li>
+            <li class="nav-item"><button class="nav-link" id="plants-tab" data-bs-toggle="tab" data-bs-target="#plants"><i class="fas fa-leaf"></i> Растения (50+)</button></li>
+            <li class="nav-item"><button class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites"><i class="fas fa-star"></i> Избранное</button></li>
+            <li class="nav-item"><button class="nav-link" id="compare-tab" data-bs-toggle="tab" data-bs-target="#compare"><i class="fas fa-balance-scale"></i> Сравнение</button></li>
+            <li class="nav-item"><button class="nav-link" id="calculator-tab" data-bs-toggle="tab" data-bs-target="#calculator"><i class="fas fa-calculator"></i> Калькулятор полива</button></li>
+            <li class="nav-item"><button class="nav-link" id="diseases-tab" data-bs-toggle="tab" data-bs-target="#diseases"><i class="fas fa-bug"></i> Болезни</button></li>
+            <li class="nav-item"><button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar"><i class="fas fa-calendar-alt"></i> Календарь</button></li>
+            <li class="nav-item"><button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"><i class="fas fa-clipboard-list"></i> Заявки</button></li>
+            <li class="nav-item"><button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup"><i class="fas fa-database"></i> Бэкап</button></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -138,493 +142,324 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="chat-area" id="chatMessages">
-                        <div class="message bot-msg"><div class="bubble">🌲 Здравствуйте! Я эксперт по содержанию зелёных насаждений Москвы. Введите <strong>/помощь</strong> для списка команд. Могу отвечать на вопросы о поливе, обрезке, удобрениях, вредителях, а также создавать заявки и задачи.</div></div>
+                        <div class="message bot-msg"><div class="bubble">🌲 Здравствуйте! Я эксперт по озеленению Москвы. Введите <strong>/помощь</strong> для команд. Умею: заявки, задачи, нормы для растений, болезни, сезонные советы, калькулятор полива.</div></div>
                     </div>
                     <div class="input-group mt-3">
-                        <input type="text" id="chatInput" class="form-control" placeholder="Напишите вопрос или команду...">
+                        <input type="text" id="chatInput" class="form-control" placeholder="Напишите вопрос...">
                         <button class="btn btn-success" id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
                     </div>
-                    <div class="mt-2" id="quickButtonsContainer"></div>
-                    <div class="mt-2"><button class="btn btn-sm btn-outline-secondary" id="randomTipBtn"><i class="fas fa-lightbulb"></i> Случайный совет</button></div>
+                    <div id="quickButtonsContainer" class="mt-2"></div>
+                    <button class="btn btn-sm btn-outline-secondary mt-2" id="randomTipBtn"><i class="fas fa-lightbulb"></i> Случайный совет</button>
                 </div>
                 <div class="col-md-4">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> <strong>Команды чата</strong><br>
-                        • <code>заявка: текст</code> — создать заявку<br>
-                        • <code>задача: описание на 2025-05-20</code> — добавить задачу<br>
-                        • <code>нормы для [растение]</code> — информация из справочника<br>
-                        • <code>/статистика</code> — краткий отчёт<br>
-                        • <code>/растения</code> — список всех растений<br>
-                        • <code>/отчёт</code> — сформировать отчёт по заявкам и задачам<br>
-                        • <code>болезни [растение]</code> — типичные болезни<br>
-                        • <code>посадка [растение]</code> — советы по посадке
-                    </div>
+                    <div class="alert alert-info"><strong>Команды:</strong> заявка:, задача: ..., нормы для ..., болезни ..., посадка ..., /статистика, /растения, /отчёт, сезонные советы, /помощь</div>
                 </div>
             </div>
         </div>
 
-        <!-- СПРАВОЧНИК РАСТЕНИЙ -->
+        <!-- РАСТЕНИЯ (50+) -->
         <div class="tab-pane fade" id="plants">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                <h4><i class="fas fa-seedling text-success"></i> Справочник растений (нормы содержания)</h4>
-                <div class="plant-filter">
-                    <input type="text" id="plantSearch" class="form-control w-auto" placeholder="Поиск по названию...">
-                    <select id="plantFilterSoil" class="form-select w-auto"><option value="">Все почвы</option><option>Суглинок</option><option>Песчаная</option><option>Чернозём</option><option>Кислая</option><option>Влажная</option><option>Любая</option></select>
-                    <button class="btn btn-outline-success" id="addPlantBtn"><i class="fas fa-plus"></i> Добавить</button>
-                </div>
+            <h4><i class="fas fa-leaf"></i> Справочник растений (более 50 видов)</h4>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <input type="text" id="plantSearch" class="form-control w-auto" placeholder="Поиск...">
+                <select id="plantFilterSoil" class="form-select w-auto"><option value="">Все почвы</option><option>Суглинок</option><option>Песчаная</option><option>Чернозём</option><option>Кислая</option><option>Влажная</option><option>Любая</option></select>
+                <button class="btn btn-outline-success" id="addPlantBtn"><i class="fas fa-plus"></i> Добавить</button>
             </div>
             <div id="plantsList" class="row"></div>
+        </div>
+
+        <!-- ИЗБРАННОЕ -->
+        <div class="tab-pane fade" id="favorites">
+            <h4><i class="fas fa-star"></i> Избранные растения</h4>
+            <div id="favoritesList"></div>
+        </div>
+
+        <!-- СРАВНЕНИЕ -->
+        <div class="tab-pane fade" id="compare">
+            <h4><i class="fas fa-balance-scale"></i> Сравнение двух растений</h4>
+            <div class="row">
+                <div class="col-md-5"><select id="comparePlant1" class="form-select"></select></div>
+                <div class="col-md-5"><select id="comparePlant2" class="form-select"></select></div>
+                <div class="col-md-2"><button class="btn btn-primary" id="compareBtn">Сравнить</button></div>
+            </div>
+            <div id="compareResult" class="mt-3"></div>
+        </div>
+
+        <!-- КАЛЬКУЛЯТОР ПОЛИВА -->
+        <div class="tab-pane fade" id="calculator">
+            <h4><i class="fas fa-calculator"></i> Калькулятор полива</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Тип растения</label>
+                    <select id="calcPlant" class="form-select"></select>
+                    <label class="mt-2">Количество (шт) или площадь (м²)</label>
+                    <input type="number" id="calcAmount" class="form-control" value="1">
+                    <button class="btn btn-success mt-3" id="calcWaterBtn">Рассчитать воду</button>
+                </div>
+                <div class="col-md-6"><div id="calcResult" class="alert alert-info"></div></div>
+            </div>
+        </div>
+
+        <!-- БОЛЕЗНИ -->
+        <div class="tab-pane fade" id="diseases">
+            <h4><i class="fas fa-bug"></i> Картотека болезней и вредителей</h4>
+            <input type="text" id="diseaseSearch" class="form-control mb-3" placeholder="Поиск болезни или вредителя...">
+            <div id="diseasesList"></div>
         </div>
 
         <!-- КАЛЕНДАРЬ -->
         <div class="tab-pane fade" id="calendar">
             <h4><i class="fas fa-calendar-week"></i> Планировщик работ</h4>
             <div class="row">
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <label>Новая задача</label>
-                        <input type="text" id="taskName" class="form-control mb-2" placeholder="Описание">
-                        <input type="date" id="taskDate" class="form-control mb-2">
-                        <select id="taskPriority" class="form-select mb-2"><option>Обычная</option><option>Срочная</option></select>
-                        <button class="btn btn-success" id="addTaskBtn"><i class="fas fa-plus"></i> Добавить</button>
-                    </div>
-                </div>
-                <div class="col-md-8"><div id="tasksList" style="max-height: 500px; overflow-y: auto;"></div>
-                <button class="btn btn-sm btn-secondary mt-2" id="exportTasksBtn"><i class="fas fa-download"></i> Экспорт CSV</button></div>
+                <div class="col-md-4"><div class="card p-3"><input type="text" id="taskName" class="form-control mb-2" placeholder="Описание"><input type="date" id="taskDate" class="form-control mb-2"><select id="taskPriority" class="form-select mb-2"><option>Обычная</option><option>Срочная</option></select><button class="btn btn-success" id="addTaskBtn">Добавить</button></div></div>
+                <div class="col-md-8"><div id="tasksList"></div><button class="btn btn-sm btn-secondary mt-2" id="exportTasksBtn">Экспорт CSV</button></div>
             </div>
         </div>
 
         <!-- ЗАЯВКИ -->
         <div class="tab-pane fade" id="orders">
-            <div class="d-flex justify-content-between flex-wrap mb-3">
-                <h4><i class="fas fa-clipboard-list"></i> Заявки на работы</h4>
-                <div><select id="orderFilter" class="form-select w-auto d-inline-block"><option value="all">Все</option><option>Черновик</option><option>В работе</option><option>Выполнена</option></select>
-                <button class="btn btn-outline-primary" id="exportOrdersBtn"><i class="fas fa-file-excel"></i> Экспорт CSV</button>
-                <button class="btn btn-danger btn-sm" id="clearCompletedBtn">Очистить выполненные</button>
-                <button class="btn btn-outline-info btn-sm" id="generateReportBtn"><i class="fas fa-chart-line"></i> Сформировать отчёт</button></div>
-            </div>
+            <h4><i class="fas fa-clipboard-list"></i> Заявки на работы</h4>
+            <div class="d-flex gap-2 mb-3"><select id="orderFilter" class="form-select w-auto"><option value="all">Все</option><option>Черновик</option><option>В работе</option><option>Выполнена</option></select><button class="btn btn-outline-primary" id="exportOrdersBtn">Экспорт CSV</button><button class="btn btn-danger btn-sm" id="clearCompletedBtn">Очистить выполненные</button><button class="btn btn-outline-info" id="generateReportBtn">Отчёт</button></div>
             <div id="ordersList"></div>
-        </div>
-
-        <!-- СЕЗОННЫЕ СОВЕТЫ -->
-        <div class="tab-pane fade" id="season">
-            <h4><i class="fas fa-sun"></i> Сезонные рекомендации на текущий месяц</h4>
-            <div id="seasonAdvice" class="alert alert-success mt-3"></div>
-            <h5 class="mt-4">📅 Календарь работ по месяцам</h5>
-            <div class="row" id="monthlyCalendar"></div>
         </div>
 
         <!-- БЭКАП -->
         <div class="tab-pane fade" id="backup">
             <h4><i class="fas fa-database"></i> Резервное копирование</h4>
-            <button class="btn btn-success" id="exportAllBtn"><i class="fas fa-download"></i> Скачать все данные (JSON)</button>
+            <button class="btn btn-success" id="exportAllBtn">Скачать JSON</button>
             <input type="file" id="importFileInput" accept=".json" style="display:none;">
-            <button class="btn btn-warning" id="importBtn"><i class="fas fa-upload"></i> Восстановить из JSON</button>
-            <button class="btn btn-danger" id="resetAllBtn">Сбросить все данные</button>
-            <hr>
-            <div class="alert alert-secondary">Все данные хранятся локально в браузере. При сбросе будут восстановлены только предустановленные растения (30+ видов).</div>
+            <button class="btn btn-warning" id="importBtn">Восстановить</button>
+            <button class="btn btn-danger" id="resetAllBtn">Сбросить</button>
+            <button class="btn btn-secondary" id="printReportBtn">Печать отчёта (PDF)</button>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ---------- БАЗА ДАННЫХ РАСТЕНИЙ (30+ видов с расширенными полями) ----------
-    let defaultPlantDB = [
-        { name: "Липа мелколистная", watering: "50 л/дерево раз в 5 дней", pruning: "ноябрь-март", fertilizer: "весной 30 г/м² азота", pest: "тля → Актеллик, Конфидор", soil: "Суглинок", frost: "Высокая", flowering: "Июнь-июль" },
-        { name: "Берёза повислая", watering: "30 л/дерево в неделю", pruning: "январь-февраль", fertilizer: "осенью фосфорно-калийные", pest: "минирующая моль → Битоксибациллин", soil: "Песчаная", frost: "Высокая", flowering: "Май" },
-        { name: "Дуб черешчатый", watering: "60 л/дерево раз в 10 дней", pruning: "ноябрь-февраль", fertilizer: "комплексное весной", pest: "мучнистая роса → Топаз", soil: "Суглинок", frost: "Высокая", flowering: "Май" },
-        { name: "Клён остролистный", watering: "40 л/дерево раз в 7 дней", pruning: "декабрь-февраль", fertilizer: "азофоска 40 г/м²", pest: "кленовый клещ → Фитоверм", soil: "Суглинок", frost: "Средняя", flowering: "Апрель-май" },
-        { name: "Сосна обыкновенная", watering: "30 л/дерево раз в 10 дней", pruning: "не требуется", fertilizer: "весной комплексное", pest: "тля, щитовка → Актеллик", soil: "Песчаная", frost: "Высокая", flowering: "Май" },
-        { name: "Ель колючая", watering: "20 л/дерево раз в 7 дней", pruning: "санитарная", fertilizer: "хвойное удобрение", pest: "короед → Клипер", soil: "Суглинок", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Рябина обыкновенная", watering: "25 л/дерево раз в 5 дней", pruning: "ноябрь-март", fertilizer: "осенью суперфосфат", pest: "рябиновая моль → Лепидоцид", soil: "Суглинок", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Ива белая", watering: "60 л/дерево каждые 3 дня", pruning: "после листопада", fertilizer: "органические удобрения", pest: "ивовый листоед → Карбофос", soil: "Влажная", frost: "Средняя", flowering: "Апрель-май" },
-        { name: "Каштан конский", watering: "50 л/дерево раз в 7 дней", pruning: "зима", fertilizer: "весной мочевина", pest: "каштановая минирующая моль → Инсектициды", soil: "Чернозём", frost: "Средняя", flowering: "Май" },
-        { name: "Яблоня декоративная", watering: "30 л/дерево раз в 5 дней", pruning: "февраль-март", fertilizer: "калийная соль осенью", pest: "плодожорка → Конфидор", soil: "Суглинок", frost: "Средняя", flowering: "Май" },
-        { name: "Газон (мятлик)", watering: "20-25 л/м² в неделю", pruning: "стрижка 5-6 см", fertilizer: "азот весной 30 г/м²", pest: "проволочник → диазинон", soil: "Любая", frost: "Высокая", flowering: "-" },
-        { name: "Роза парковая", watering: "15 л/куст 2 раза в неделю", pruning: "весна, укрытие", fertilizer: "комплексное каждые 2 недели", pest: "тля, мучнистая роса → Топаз", soil: "Чернозём", frost: "Средняя (требует укрытия)", flowering: "Июнь-сентябрь" },
-        { name: "Сирень венгерская", watering: "20 л/куст раз в 7 дней", pruning: "после цветения", fertilizer: "зола, фосфор", pest: "сиреневая моль → Актеллик", soil: "Суглинок", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Жимолость татарская", watering: "15 л/куст раз в 7 дней", pruning: "осенью", fertilizer: "нитроаммофоска", pest: "тля → Биотлин", soil: "Любая", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Кизильник блестящий", watering: "10 л/куст раз в 5 дней", pruning: "весна", fertilizer: "комплексное", pest: "тля, щитовка → Фитоверм", soil: "Суглинок", frost: "Высокая", flowering: "Май" },
-        { name: "Пузыреплодник калинолистный", watering: "15 л/куст раз в 5 дней", pruning: "после цветения", fertilizer: "перегной", pest: "тля → Конфидор", soil: "Суглинок", frost: "Высокая", flowering: "Июнь-июль" },
-        { name: "Туя западная", watering: "30 л/дерево раз в 7 дней", pruning: "весна", fertilizer: "для хвойных", pest: "туевая тля → Актеллик", soil: "Суглинок", frost: "Высокая", flowering: "-" },
-        { name: "Можжевельник казацкий", watering: "20 л/куст раз в 10 дней", pruning: "санитарная", fertilizer: "нитроаммофоска", pest: "ржавчина → Топаз", soil: "Песчаная", frost: "Высокая", flowering: "-" },
-        { name: "Барбарис Тунберга", watering: "10 л/куст раз в 5 дней", pruning: "весна", fertilizer: "комплексное", pest: "тля → Биотлин", soil: "Любая", frost: "Высокая", flowering: "Май" },
-        { name: "Гортензия метельчатая", watering: "20 л/куст каждые 3 дня", pruning: "ранняя весна", fertilizer: "сульфат калия", pest: "мучнистая роса → Скор", soil: "Кислая", frost: "Средняя", flowering: "Июль-сентябрь" },
-        { name: "Спирея японская", watering: "15 л/куст раз в 5 дней", pruning: "весна", fertilizer: "комплексное", pest: "тля → Актеллик", soil: "Суглинок", frost: "Высокая", flowering: "Июнь-август" },
-        { name: "Дерен белый", watering: "20 л/куст раз в 7 дней", pruning: "весна", fertilizer: "органика", pest: "тля → Биотлин", soil: "Влажная", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Лапчатка кустарниковая", watering: "10 л/куст раз в 5 дней", pruning: "весна", fertilizer: "калий", pest: "редко", soil: "Любая", frost: "Высокая", flowering: "Июнь-сентябрь" },
-        { name: "Чубушник (жасмин)", watering: "15 л/куст раз в 7 дней", pruning: "после цветения", fertilizer: "нитроаммофоска", pest: "тля → Конфидор", soil: "Суглинок", frost: "Высокая", flowering: "Июнь-июль" },
-        { name: "Калина обыкновенная", watering: "20 л/куст раз в 5 дней", pruning: "осенью", fertilizer: "фосфор", pest: "калиновый листоед → Карбофос", soil: "Суглинок", frost: "Высокая", flowering: "Май-июнь" },
-        { name: "Боярышник кроваво-красный", watering: "15 л/куст раз в 7 дней", pruning: "весна", fertilizer: "комплексное", pest: "тля → Актеллик", soil: "Суглинок", frost: "Высокая", flowering: "Май" },
-        { name: "Ольха серая", watering: "40 л/дерево раз в 7 дней", pruning: "зима", fertilizer: "азот", pest: "ольховый листоед → Карбофос", soil: "Влажная", frost: "Высокая", flowering: "Апрель" },
-        { name: "Тополь чёрный", watering: "70 л/дерево раз в 5 дней", pruning: "ноябрь-февраль", fertilizer: "комплексное", pest: "тополевая моль → Лепидоцид", soil: "Любая", frost: "Высокая", flowering: "Апрель" },
-        { name: "Вяз гладкий", watering: "50 л/дерево раз в 7 дней", pruning: "ноябрь-март", fertilizer: "фосфор", pest: "голландская болезнь → фунгициды", soil: "Суглинок", frost: "Высокая", flowering: "Апрель-май" },
-        { name: "Гледичия трёхколючковая", watering: "30 л/дерево раз в 10 дней", pruning: "зима", fertilizer: "калий", pest: "редко", soil: "Любая", frost: "Высокая", flowering: "Июнь" }
-    ];
+// -------------------------- БАЗА РАСТЕНИЙ (55 видов) --------------------------
+let defaultPlantDB = [
+    {name:"Липа мелколистная",watering:"50 л/дерево раз в 5 дней",pruning:"ноябрь-март",fertilizer:"весной азот 30 г/м²",pest:"тля→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"Июнь-июль"},
+    {name:"Берёза повислая",watering:"30 л/дерево в неделю",pruning:"январь-февраль",fertilizer:"осенью фосфорно-калийные",pest:"минирующая моль→Битоксибациллин",soil:"Песчаная",frost:"Высокая",flowering:"Май"},
+    {name:"Дуб черешчатый",watering:"60 л/дерево раз в 10 дней",pruning:"ноябрь-февраль",fertilizer:"комплексное весной",pest:"мучнистая роса→Топаз",soil:"Суглинок",frost:"Высокая",flowering:"Май"},
+    {name:"Клён остролистный",watering:"40 л/дерево раз в 7 дней",pruning:"декабрь-февраль",fertilizer:"азофоска 40 г/м²",pest:"кленовый клещ→Фитоверм",soil:"Суглинок",frost:"Средняя",flowering:"Апрель-май"},
+    {name:"Сосна обыкновенная",watering:"30 л/дерево раз в 10 дней",pruning:"не требуется",fertilizer:"весной комплексное",pest:"тля, щитовка→Актеллик",soil:"Песчаная",frost:"Высокая",flowering:"Май"},
+    {name:"Ель колючая",watering:"20 л/дерево раз в 7 дней",pruning:"санитарная",fertilizer:"хвойное удобрение",pest:"короед→Клипер",soil:"Суглинок",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Рябина обыкновенная",watering:"25 л/дерево раз в 5 дней",pruning:"ноябрь-март",fertilizer:"осенью суперфосфат",pest:"рябиновая моль→Лепидоцид",soil:"Суглинок",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Ива белая",watering:"60 л/дерево каждые 3 дня",pruning:"после листопада",fertilizer:"органические",pest:"ивовый листоед→Карбофос",soil:"Влажная",frost:"Средняя",flowering:"Апрель-май"},
+    {name:"Каштан конский",watering:"50 л/дерево раз в 7 дней",pruning:"зима",fertilizer:"весной мочевина",pest:"каштановая моль→Инсектициды",soil:"Чернозём",frost:"Средняя",flowering:"Май"},
+    {name:"Яблоня декоративная",watering:"30 л/дерево раз в 5 дней",pruning:"февраль-март",fertilizer:"калийная соль осенью",pest:"плодожорка→Конфидор",soil:"Суглинок",frost:"Средняя",flowering:"Май"},
+    {name:"Газон (мятлик)",watering:"20-25 л/м² в неделю",pruning:"стрижка 5-6 см",fertilizer:"азот весной 30 г/м²",pest:"проволочник→диазинон",soil:"Любая",frost:"Высокая",flowering:"-"},
+    {name:"Роза парковая",watering:"15 л/куст 2 раза в неделю",pruning:"весна, укрытие",fertilizer:"комплексное каждые 2 недели",pest:"тля, мучнистая роса→Топаз",soil:"Чернозём",frost:"Средняя (укрытие)",flowering:"Июнь-сентябрь"},
+    {name:"Сирень венгерская",watering:"20 л/куст раз в 7 дней",pruning:"после цветения",fertilizer:"зола, фосфор",pest:"сиреневая моль→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Жимолость татарская",watering:"15 л/куст раз в 7 дней",pruning:"осенью",fertilizer:"нитроаммофоска",pest:"тля→Биотлин",soil:"Любая",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Кизильник блестящий",watering:"10 л/куст раз в 5 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля, щитовка→Фитоверм",soil:"Суглинок",frost:"Высокая",flowering:"Май"},
+    {name:"Пузыреплодник калинолистный",watering:"15 л/куст раз в 5 дней",pruning:"после цветения",fertilizer:"перегной",pest:"тля→Конфидор",soil:"Суглинок",frost:"Высокая",flowering:"Июнь-июль"},
+    {name:"Туя западная",watering:"30 л/дерево раз в 7 дней",pruning:"весна",fertilizer:"для хвойных",pest:"туевая тля→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"-"},
+    {name:"Можжевельник казацкий",watering:"20 л/куст раз в 10 дней",pruning:"санитарная",fertilizer:"нитроаммофоска",pest:"ржавчина→Топаз",soil:"Песчаная",frost:"Высокая",flowering:"-"},
+    {name:"Барбарис Тунберга",watering:"10 л/куст раз в 5 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля→Биотлин",soil:"Любая",frost:"Высокая",flowering:"Май"},
+    {name:"Гортензия метельчатая",watering:"20 л/куст каждые 3 дня",pruning:"ранняя весна",fertilizer:"сульфат калия",pest:"мучнистая роса→Скор",soil:"Кислая",frost:"Средняя",flowering:"Июль-сентябрь"},
+    {name:"Спирея японская",watering:"15 л/куст раз в 5 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"Июнь-август"},
+    {name:"Дерен белый",watering:"20 л/куст раз в 7 дней",pruning:"весна",fertilizer:"органика",pest:"тля→Биотлин",soil:"Влажная",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Лапчатка кустарниковая",watering:"10 л/куст раз в 5 дней",pruning:"весна",fertilizer:"калий",pest:"редко",soil:"Любая",frost:"Высокая",flowering:"Июнь-сентябрь"},
+    {name:"Чубушник (жасмин)",watering:"15 л/куст раз в 7 дней",pruning:"после цветения",fertilizer:"нитроаммофоска",pest:"тля→Конфидор",soil:"Суглинок",frost:"Высокая",flowering:"Июнь-июль"},
+    {name:"Калина обыкновенная",watering:"20 л/куст раз в 5 дней",pruning:"осенью",fertilizer:"фосфор",pest:"калиновый листоед→Карбофос",soil:"Суглинок",frost:"Высокая",flowering:"Май-июнь"},
+    {name:"Боярышник кроваво-красный",watering:"15 л/куст раз в 7 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"Май"},
+    {name:"Ольха серая",watering:"40 л/дерево раз в 7 дней",pruning:"зима",fertilizer:"азот",pest:"ольховый листоед→Карбофос",soil:"Влажная",frost:"Высокая",flowering:"Апрель"},
+    {name:"Тополь чёрный",watering:"70 л/дерево раз в 5 дней",pruning:"ноябрь-февраль",fertilizer:"комплексное",pest:"тополевая моль→Лепидоцид",soil:"Любая",frost:"Высокая",flowering:"Апрель"},
+    {name:"Вяз гладкий",watering:"50 л/дерево раз в 7 дней",pruning:"ноябрь-март",fertilizer:"фосфор",pest:"голландская болезнь→фунгициды",soil:"Суглинок",frost:"Высокая",flowering:"Апрель-май"},
+    {name:"Гледичия трёхколючковая",watering:"30 л/дерево раз в 10 дней",pruning:"зима",fertilizer:"калий",pest:"редко",soil:"Любая",frost:"Высокая",flowering:"Июнь"},
+    {name:"Абрикос маньчжурский",watering:"40 л/дерево раз в 7 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля, парша→Хорус",soil:"Суглинок",frost:"Средняя",flowering:"Апрель"},
+    {name:"Груша уссурийская",watering:"35 л/дерево раз в 7 дней",pruning:"март",fertilizer:"фосфор осенью",pest:"плодожорка→Конфидор",soil:"Суглинок",frost:"Высокая",flowering:"Май"},
+    {name:"Черёмуха обыкновенная",watering:"25 л/дерево раз в 5 дней",pruning:"после цветения",fertilizer:"органика",pest:"тля, моль→Актеллик",soil:"Суглинок",frost:"Высокая",flowering:"Май"},
+    {name:"Лох серебристый",watering:"15 л/куст раз в 10 дней",pruning:"весна",fertilizer:"калий",pest:"редко",soil:"Песчаная",frost:"Высокая",flowering:"Июнь"},
+    {name:"Скумпия кожевенная",watering:"20 л/куст раз в 7 дней",pruning:"весна",fertilizer:"фосфор",pest:"тля→Биотлин",soil:"Суглинок",frost:"Средняя",flowering:"Июнь-июль"},
+    {name:"Форзиция яйцевидная",watering:"15 л/куст раз в 5 дней",pruning:"после цветения",fertilizer:"комплексное",pest:"редко",soil:"Любая",frost:"Высокая",flowering:"Апрель"},
+    {name:"Вейгела ранняя",watering:"15 л/куст раз в 5 дней",pruning:"после цветения",fertilizer:"калий",pest:"тля→Актеллик",soil:"Суглинок",frost:"Средняя",flowering:"Май-июнь"},
+    {name:"Дейция шершавая",watering:"15 л/куст раз в 5 дней",pruning:"весна",fertilizer:"перегной",pest:"редко",soil:"Суглинок",frost:"Средняя",flowering:"Июнь"},
+    {name:"Керрия японская",watering:"10 л/куст раз в 5 дней",pruning:"после цветения",fertilizer:"комплексное",pest:"тля→Биотлин",soil:"Суглинок",frost:"Средняя",flowering:"Май"},
+    {name:"Магония падуболистная",watering:"10 л/куст раз в 7 дней",pruning:"весна",fertilizer:"для рододендронов",pest:"редко",soil:"Кислая",frost:"Высокая",flowering:"Апрель-май"},
+    {name:"Рододендрон",watering:"20 л/куст 2 раза в неделю",pruning:"после цветения",fertilizer:"специальное",pest:"рододендроновая муха→Актара",soil:"Кислая",frost:"Средняя",flowering:"Май-июнь"},
+    {name:"Азалия",watering:"15 л/куст 2 раза в неделю",pruning:"после цветения",fertilizer:"кислое удобрение",pest:"тля→Фитоверм",soil:"Кислая",frost:"Средняя",flowering:"Май"},
+    {name:"Гибискус сирийский",watering:"20 л/куст раз в 7 дней",pruning:"весна",fertilizer:"калий",pest:"тля→Конфидор",soil:"Суглинок",frost:"Средняя",flowering:"Июль-сентябрь"},
+    {name:"Буддлея Давида",watering:"15 л/куст раз в 5 дней",pruning:"весна",fertilizer:"фосфор",pest:"паутинный клещ→Фитоверм",soil:"Суглинок",frost:"Средняя",flowering:"Июль-сентябрь"},
+    {name:"Павловния войлочная",watering:"30 л/дерево раз в 7 дней",pruning:"весна",fertilizer:"азот",pest:"редко",soil:"Суглинок",frost:"Низкая",flowering:"Май"},
+    {name:"Катальпа бигнониевидная",watering:"40 л/дерево раз в 7 дней",pruning:"весна",fertilizer:"комплексное",pest:"тля→Актеллик",soil:"Суглинок",frost:"Средняя",flowering:"Июль"},
+    {name:"Магнолия звёздчатая",watering:"20 л/дерево раз в 5 дней",pruning:"после цветения",fertilizer:"кислое удобрение",pest:"редко",soil:"Кислая",frost:"Средняя",flowering:"Апрель"},
+    {name:"Сумах оленерогий",watering:"15 л/дерево раз в 10 дней",pruning:"весна",fertilizer:"калий",pest:"редко",soil:"Любая",frost:"Высокая",flowering:"Июнь-июль"}
+];
 
-    let plantDB = [];
-    let tasks = [];
-    let orders = [];
+// Картотека болезней
+let diseasesDB = [
+    {name:"Мучнистая роса",symptoms:"Белый налёт на листьях",treatment:"Топаз, Скор, удалить поражённые листья",plants:"роза, дуб, крыжовник"},
+    {name:"Чёрная пятнистость",symptoms:"Тёмные пятна на листьях",treatment:"Фунгициды (Ридомил), уборка листвы",plants:"роза, клён"},
+    {name:"Тля",symptoms:"Скрученные листья, липкий налёт",treatment:"Актеллик, Конфидор, мыльный раствор",plants:"липа, роза, калина"},
+    {name:"Калиновый листоед",symptoms:"Объеденные листья",treatment:"Карбофос, сбор жуков",plants:"калина"},
+    {name:"Каштановая минирующая моль",symptoms:"Бурые пятна, минирование листьев",treatment:"Инсектициды (Люфокс), феромонные ловушки",plants:"каштан"},
+    {name:"Короед",symptoms:"Отверстия на коре, опилки",treatment:"Клипер, удаление заражённых ветвей",plants:"ель, сосна"},
+    {name:"Ржавчина",symptoms:"Оранжевые подушечки на листьях",treatment:"Топаз, Абига-Пик",plants:"можжевельник, груша"},
+    {name:"Бактериальный ожог",symptoms:"Почернение ветвей, загнутые концы",treatment:"Обрезка поражённых частей, обработка медным купоросом",plants:"груша, яблоня"},
+    {name:"Серая гниль",symptoms:"Серый налёт, гниение",treatment:"Фунгициды (Хорус), проветривание",plants:"роза, пион"},
+    {name:"Паутинный клещ",symptoms:"Тонкая паутина, пожелтение",treatment:"Фитоверм, Актеллик",plants:"роза, буддлея"}
+];
 
-    // Функция инициализации/миграции данных
-    function initData() {
-        let savedPlants = localStorage.getItem('green_plantDB');
-        if (savedPlants) {
-            plantDB = JSON.parse(savedPlants);
-            // Миграция: добавляем отсутствующие поля
-            for (let p of plantDB) {
-                if (p.soil === undefined) p.soil = "не указано";
-                if (p.frost === undefined) p.frost = "не указано";
-                if (p.flowering === undefined) p.flowering = "не указано";
-            }
-        } else {
-            plantDB = JSON.parse(JSON.stringify(defaultPlantDB)); // копия
-        }
-        let savedTasks = localStorage.getItem('green_tasks');
-        if (savedTasks) tasks = JSON.parse(savedTasks);
-        let savedOrders = localStorage.getItem('green_orders');
-        if (savedOrders) orders = JSON.parse(savedOrders);
-    }
+let plantDB = [], tasks = [], orders = [], favorites = JSON.parse(localStorage.getItem('green_favorites')||'[]');
 
-    function saveAll() {
-        localStorage.setItem('green_plantDB', JSON.stringify(plantDB));
-        localStorage.setItem('green_tasks', JSON.stringify(tasks));
-        localStorage.setItem('green_orders', JSON.stringify(orders));
-    }
+function initData() {
+    let saved = localStorage.getItem('green_plantDB');
+    if(saved) plantDB = JSON.parse(saved); else plantDB = JSON.parse(JSON.stringify(defaultPlantDB));
+    let savedTasks = localStorage.getItem('green_tasks'); if(savedTasks) tasks = JSON.parse(savedTasks);
+    let savedOrders = localStorage.getItem('green_orders'); if(savedOrders) orders = JSON.parse(savedOrders);
+}
+function saveAll() { localStorage.setItem('green_plantDB',JSON.stringify(plantDB)); localStorage.setItem('green_tasks',JSON.stringify(tasks)); localStorage.setItem('green_orders',JSON.stringify(orders)); localStorage.setItem('green_favorites',JSON.stringify(favorites)); }
 
-    // ---------- РАСШИРЕННЫЙ ЧАТ-БОТ ----------
-    function getBotAnswer(question) {
-        let q = question.toLowerCase().trim();
-        
-        // Команды
-        if (q === "/помощь") {
-            return "📖 *Доступные команды:*\n• `заявка: описание` — создать заявку\n• `задача: описание на ГГГГ-ММ-ДД` — добавить задачу\n• `нормы для [растение]` — информация о растении\n• `болезни [растение]` — типичные болезни и лечение\n• `посадка [растение]` — советы по посадке\n• `/статистика` — общая статистика\n• `/растения` — список всех растений\n• `/отчёт` — сформировать отчёт по заявкам и задачам\n• `сезонные советы` — рекомендации на текущий месяц";
-        }
-        if (q === "/статистика") {
-            let completedOrders = orders.filter(o=>o.status==='Выполнена').length;
-            let completedTasks = tasks.filter(t=>t.completed).length;
-            return `📊 Статистика:\n• Заявок: ${orders.length} (выполнено ${completedOrders})\n• Задач: ${tasks.length} (выполнено ${completedTasks})\n• Растений в справочнике: ${plantDB.length}`;
-        }
-        if (q === "/растения") {
-            return "🌿 Список растений: " + plantDB.map(p => p.name).join(", ");
-        }
-        if (q === "/отчёт") {
-            let report = generateTextReport();
-            return `📄 *Отчёт по заявкам и задачам*\n${report}`;
-        }
-        if (q === "сезонные советы") {
-            let month = new Date().getMonth();
-            let advice = getSeasonalAdvice(month);
-            return `🌱 Сезонные советы на ${getMonthName(month)}:\n${advice}`;
-        }
-        if (q.includes("заявка:")) {
-            let desc = q.replace("заявка:", "").trim();
-            if (!desc) return "Укажите описание заявки после команды.";
-            addOrder(desc, "Черновик");
-            return `✅ Заявка "${desc}" создана в статусе "Черновик".`;
-        }
-        if (q.includes("задача:")) {
-            let parts = q.replace("задача:", "").trim().split(" на ");
-            if (parts.length === 2) {
-                let taskDesc = parts[0].trim();
-                let taskDate = parts[1].trim();
-                if (taskDesc && taskDate && /^\d{4}-\d{2}-\d{2}$/.test(taskDate)) {
-                    addCalendarTask(taskDesc, taskDate, "Обычная");
-                    return `📌 Задача "${taskDesc}" добавлена на ${taskDate}.`;
-                }
-            }
-            return "Неверный формат. Пример: `задача: Полив газона на 2025-06-01`";
-        }
-        if (q.startsWith("нормы для")) {
-            let name = q.replace("нормы для", "").trim();
-            let plant = plantDB.find(p => p.name.toLowerCase().includes(name));
-            if (plant) {
-                return `🌿 ${plant.name}:\n💧 Полив: ${plant.watering}\n✂️ Обрезка: ${plant.pruning}\n🌱 Удобрения: ${plant.fertilizer}\n🐛 Вредители: ${plant.pest}\n🌍 Почва: ${plant.soil}\n❄️ Морозостойкость: ${plant.frost}\n🌸 Цветение: ${plant.flowering}`;
-            } else return `Растение "${name}" не найдено. Введите /растения для списка.`;
-        }
-        if (q.startsWith("болезни")) {
-            let name = q.replace("болезни", "").trim();
-            let plant = plantDB.find(p => p.name.toLowerCase().includes(name));
-            if (plant) {
-                return `🩺 Типичные болезни и вредители для ${plant.name}: ${plant.pest}. Рекомендации: своевременная обработка, удаление поражённых частей.`;
-            } else return `Растение "${name}" не найдено.`;
-        }
-        if (q.startsWith("посадка")) {
-            let name = q.replace("посадка", "").trim();
-            let plant = plantDB.find(p => p.name.toLowerCase().includes(name));
-            if (plant) {
-                let advice = "";
-                if (plant.name.includes("Липа")) advice = "Посадка липы: яма 70x70 см, дренаж, плодородная смесь, полив 20 л после посадки. Лучшее время — весна или осень.";
-                else if (plant.name.includes("Берёза")) advice = "Берёзу сажать на солнечное место, яма 60x60 см, обильный полив. Не заглублять корневую шейку.";
-                else advice = `Для ${plant.name} рекомендуется посадка весной или осенью, яма в 2 раза больше корневого кома, внесение компоста, регулярный полив в первый год.`;
-                return `🌱 Советы по посадке ${plant.name}:\n${advice}`;
-            } else return `Растение "${name}" не найдено.`;
-        }
-        
-        // Расширенные типовые вопросы
-        if (q.includes("полив газона")) return "💧 Норма полива газонов в Москве: 20–25 л/м² в неделю, при жаре до 30 л/м². Поливать утром или вечером.";
-        if (q.includes("обрезка деревьев")) return "✂️ Обрезка деревьев в Москве разрешена только в период покоя (ноябрь–март). Санитарная обрезка – круглый год.";
-        if (q.includes("тля") && q.includes("липа")) return "🐛 Против тли на липе: Актеллик (2 мл/л) или Конфидор. Повторить через 10 дней.";
-        if (q.includes("мучнистая роса")) return "🍃 Мучнистая роса: обработать Топазом или Скором. Удалить поражённые листья. Профилактика: опрыскивание настоем чеснока.";
-        if (q.includes("удобрение газона")) return "🌱 Весной: азотные удобрения 30 г/м². Осенью: фосфорно-калийные 40 г/м². Органика – перегной 5 кг/м² раз в 3 года.";
-        if (q.includes("календарь работ") || q.includes("июнь")) return "📅 Июнь: скашивание газонов каждые 10 дней, полив, прополка. Июль: обработка от вредителей. Август: ремонт газонов.";
-        if (q.includes("зимний уход") || q.includes("укрытие")) return "❄️ Укрытие роз: окучивание землёй на 20-30 см, сверху лапник или спанбонд. Стволы молодых деревьев обвязывают мешковиной.";
-        
-        // Поиск по любому растению
-        for (let p of plantDB) {
-            if (q.includes(p.name.toLowerCase())) {
-                return `🌿 ${p.name}: ${p.watering}, обрезка ${p.pruning}, удобрения ${p.fertilizer}, вредители ${p.pest}. Подробнее: "нормы для ${p.name}"`;
-            }
-        }
-        
-        return "📘 Уточните вопрос или используйте /помощь. Я могу подсказать по поливу, обрезке, вредителям, удобрениям, посадке, сезонным работам.";
-    }
-
-    // Случайный совет
-    const tips = [
-        "Поливайте растения утром или вечером, чтобы избежать ожогов листьев.",
-        "Мульчирование приствольных кругов сохраняет влагу и подавляет сорняки.",
-        "Осенью обязательно уберите опавшую листву – источник болезней.",
-        "Для газона важна аэрация (прокалывание) раз в год для доступа кислорода к корням.",
-        "При обрезке деревьев используйте острый инструмент и замазывайте срезы садовым варом.",
-        "Весной подкармливайте растения азотом, осенью – фосфором и калием.",
-        "Тлю можно смывать мыльным раствором (50 г мыла на 10 л воды).",
-        "Сажайте деревья на расстоянии не менее 3-5 метров от зданий."
-    ];
-    function randomTip() {
-        return tips[Math.floor(Math.random() * tips.length)];
-    }
-
-    // ---------- СЕЗОННЫЕ СОВЕТЫ ----------
-    function getMonthName(month) {
-        const names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-        return names[month];
-    }
-    function getSeasonalAdvice(month) {
-        const advice = [
-            "Январь: Проверка укрытий растений, стряхивание снега с ветвей, подкормка птиц.",
-            "Февраль: Обрезка деревьев и кустарников (кроме весеннецветущих), ремонт садового инвентаря.",
-            "Март: Снятие укрытий с роз, санитарная обрезка, побелка стволов.",
-            "Апрель: Уборка мусора, рыхление почвы, подкормка азотными удобрениями, посадка деревьев.",
-            "Май: Полив, прополка, обработка от вредителей, посев газона.",
-            "Июнь: Скашивание газонов каждые 10 дней, полив, подкормка, формирующая обрезка кустарников.",
-            "Июль: Регулярный полив, борьба с вредителями и болезнями, стрижка живых изгородей.",
-            "Август: Ремонт газонов, подкормка фосфорно-калийными удобрениями, сбор семян.",
-            "Сентябрь: Посадка луковичных, санитарная обрезка, уборка листвы.",
-            "Октябрь: Посадка деревьев и кустарников, укрытие роз, влагозарядковый полив.",
-            "Ноябрь: Завершение обрезки, утепление многолетников, подготовка к зиме.",
-            "Декабрь: Защита от грызунов, укрытие хвойных от ожогов, проверка укрытий."
-        ];
-        return advice[month];
-    }
-    function renderSeasonal() {
-        let now = new Date();
-        let month = now.getMonth();
-        let advice = getSeasonalAdvice(month);
-        document.getElementById('seasonAdvice').innerHTML = `<i class="fas fa-calendar-alt"></i> <strong>${getMonthName(month)}</strong><br>${advice}`;
-        // Календарь по месяцам
-        let monthsHtml = "";
-        for (let i=0; i<12; i++) {
-            monthsHtml += `<div class="col-md-3 col-sm-6 mb-2"><div class="border rounded p-2"><strong>${getMonthName(i)}</strong><br><small>${getSeasonalAdvice(i).substring(0,80)}...</small></div></div>`;
-        }
-        document.getElementById('monthlyCalendar').innerHTML = monthsHtml;
-    }
-
-    // ---------- ЗАЯВКИ ----------
-    function addOrder(desc, status) {
-        orders.unshift({ id: Date.now(), description: desc, status: status, date: new Date().toLocaleString() });
-        saveAll(); renderOrders();
-    }
-    function renderOrders() {
-        let filter = document.getElementById('orderFilter')?.value || 'all';
-        let filtered = orders.filter(o => filter==='all' || o.status===filter);
-        let container = document.getElementById('ordersList');
-        if (!container) return;
-        if (!filtered.length) { container.innerHTML = '<div class="alert alert-light">Нет заявок</div>'; return; }
-        container.innerHTML = filtered.map(order => `
-            <div class="order-item">
-                <div class="d-flex justify-content-between">
-                    <strong>#${order.id}</strong>
-                    <select class="form-select form-select-sm w-auto status-select" data-id="${order.id}">
-                        <option ${order.status==='Черновик'?'selected':''}>Черновик</option>
-                        <option ${order.status==='В работе'?'selected':''}>В работе</option>
-                        <option ${order.status==='Выполнена'?'selected':''}>Выполнена</option>
-                    </select>
-                </div>
-                <div>${order.description}</div>
-                <div class="small text-muted">${order.date}</div>
-                <button class="btn btn-sm btn-outline-danger delete-order" data-id="${order.id}">Удалить</button>
+// --- РАСТЕНИЯ ---
+function renderPlants() {
+    let search = document.getElementById('plantSearch')?.value.toLowerCase()||'';
+    let soil = document.getElementById('plantFilterSoil')?.value||'';
+    let filtered = plantDB.filter(p=>p.name.toLowerCase().includes(search) && (soil===''||p.soil===soil));
+    let container = document.getElementById('plantsList');
+    if(!container) return;
+    container.innerHTML = filtered.map((p,idx)=>`
+        <div class="col-md-6 col-lg-4">
+            <div class="plant-card">
+                <div class="d-flex justify-content-between"><h5>${p.name}</h5><span class="favorite-star" data-name="${p.name}">${favorites.includes(p.name)?'★':'☆'}</span></div>
+                <div><strong>💧 Полив:</strong> ${p.watering}</div><div><strong>✂️ Обрезка:</strong> ${p.pruning}</div>
+                <div><strong>🌱 Удобрения:</strong> ${p.fertilizer}</div><div><strong>🐛 Вредители:</strong> ${p.pest}</div>
+                <div><strong>🌍 Почва:</strong> ${p.soil}</div><div><strong>❄️ Морозостойкость:</strong> ${p.frost}</div>
+                <div><strong>🌸 Цветение:</strong> ${p.flowering}</div>
+                <button class="btn btn-sm btn-warning edit-plant" data-index="${idx}">Ред.</button>
+                <button class="btn btn-sm btn-danger delete-plant" data-index="${idx}">Уд.</button>
             </div>
-        `).join('');
-        document.querySelectorAll('.status-select').forEach(sel => {
-            sel.onchange = () => { let id = parseInt(sel.dataset.id); let o = orders.find(o=>o.id===id); if(o) o.status = sel.value; saveAll(); renderOrders(); };
-        });
-        document.querySelectorAll('.delete-order').forEach(btn => {
-            btn.onclick = () => { orders = orders.filter(o=>o.id !== parseInt(btn.dataset.id)); saveAll(); renderOrders(); };
-        });
-    }
-    function generateTextReport() {
-        let totalOrders = orders.length;
-        let completedOrders = orders.filter(o=>o.status==='Выполнена').length;
-        let pendingOrders = orders.filter(o=>o.status!=='Выполнена').length;
-        let totalTasks = tasks.length;
-        let completedTasks = tasks.filter(t=>t.completed).length;
-        return `📋 Заявки: всего ${totalOrders}, выполнено ${completedOrders}, в работе ${pendingOrders}\n✅ Задачи: всего ${totalTasks}, выполнено ${completedTasks}\n🌿 Растений в базе: ${plantDB.length}`;
-    }
-    function exportOrdersCSV() { downloadFile("ID,Описание,Статус,Дата\n"+orders.map(o=>`${o.id},"${o.description}",${o.status},${o.date}`).join("\n"), "orders.csv", "text/csv"); }
-    function clearCompletedOrders() { orders = orders.filter(o=>o.status!=='Выполнена'); saveAll(); renderOrders(); }
+        </div>`).join('');
+    document.querySelectorAll('.favorite-star').forEach(star=>{ star.onclick=()=>{ let name=star.dataset.name; if(favorites.includes(name)) favorites=favorites.filter(n=>n!==name); else favorites.push(name); saveAll(); renderPlants(); renderFavorites(); }; });
+    attachPlantEvents();
+}
+function attachPlantEvents() {
+    document.querySelectorAll('.edit-plant').forEach(btn=>{ btn.onclick=()=>{ let idx=parseInt(btn.dataset.index); let p=plantDB[idx]; p.name=prompt("Название",p.name)||p.name; p.watering=prompt("Полив",p.watering)||p.watering; p.pruning=prompt("Обрезка",p.pruning)||p.pruning; p.fertilizer=prompt("Удобрения",p.fertilizer)||p.fertilizer; p.pest=prompt("Вредители",p.pest)||p.pest; p.soil=prompt("Почва",p.soil)||p.soil; p.frost=prompt("Морозостойкость",p.frost)||p.frost; p.flowering=prompt("Цветение",p.flowering)||p.flowering; saveAll(); renderPlants(); }; });
+    document.querySelectorAll('.delete-plant').forEach(btn=>{ btn.onclick=()=>{ plantDB.splice(parseInt(btn.dataset.index),1); saveAll(); renderPlants(); }; });
+}
+function renderFavorites() {
+    let container = document.getElementById('favoritesList');
+    if(!container) return;
+    let favPlants = plantDB.filter(p=>favorites.includes(p.name));
+    if(!favPlants.length) { container.innerHTML='<div class="alert alert-light">Нет избранных</div>'; return; }
+    container.innerHTML = favPlants.map(p=>`<div class="plant-card"><h5>${p.name}</h5><div>Полив: ${p.watering}</div><div>Обрезка: ${p.pruning}</div><button class="btn btn-sm btn-outline-danger" onclick="removeFavorite('${p.name}')">Удалить из избранного</button></div>`).join('');
+}
+function removeFavorite(name) { favorites=favorites.filter(n=>n!==name); saveAll(); renderFavorites(); renderPlants(); }
 
-    // ---------- ЗАДАЧИ ----------
-    function addCalendarTask(name, date, priority) { tasks.push({ id: Date.now(), name, date, priority, completed: false }); saveAll(); renderTasks(); }
-    function renderTasks() {
-        let container = document.getElementById('tasksList');
-        if (!container) return;
-        if (!tasks.length) { container.innerHTML = '<div class="text-muted">Нет задач</div>'; return; }
-        let sorted = [...tasks].sort((a,b)=>new Date(a.date)-new Date(b.date));
-        container.innerHTML = sorted.map(task => `
-            <div class="task-card d-flex justify-content-between align-items-center">
-                <div>
-                    <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
-                    <span style="${task.completed ? 'text-decoration:line-through' : ''}"><strong>${task.name}</strong></span><br>
-                    <small>📅 ${task.date} | ⚡ ${task.priority}</small>
-                </div>
-                <button class="btn btn-sm btn-outline-danger delete-task" data-id="${task.id}"><i class="fas fa-trash"></i></button>
-            </div>
-        `).join('');
-        document.querySelectorAll('.task-checkbox').forEach(cb => { cb.onchange = () => { let t = tasks.find(t=>t.id===parseInt(cb.dataset.id)); if(t) t.completed = cb.checked; saveAll(); renderTasks(); }; });
-        document.querySelectorAll('.delete-task').forEach(btn => { btn.onclick = () => { tasks = tasks.filter(t=>t.id !== parseInt(btn.dataset.id)); saveAll(); renderTasks(); }; });
-    }
-    function exportTasksCSV() { downloadFile("Задача,Дата,Приоритет,Выполнена\n"+tasks.map(t=>`"${t.name}",${t.date},${t.priority},${t.completed?"Да":"Нет"}`).join("\n"), "tasks.csv", "text/csv"); }
+// Сравнение
+function fillCompareSelects() { let sel1=document.getElementById('comparePlant1'), sel2=document.getElementById('comparePlant2'); if(sel1&&sel2){ sel1.innerHTML=plantDB.map(p=>`<option>${p.name}</option>`).join(''); sel2.innerHTML=plantDB.map(p=>`<option>${p.name}</option>`).join(''); } }
+function comparePlants() { let name1=document.getElementById('comparePlant1').value, name2=document.getElementById('comparePlant2').value; let p1=plantDB.find(p=>p.name===name1), p2=plantDB.find(p=>p.name===name2); if(!p1||!p2) return; let res=`<table class="table"><tr><th>Параметр</th><th>${p1.name}</th><th>${p2.name}</th></tr>
+    <tr><td>Полив</td><td>${p1.watering}</td><td>${p2.watering}</td></tr>
+    <tr><td>Обрезка</td><td>${p1.pruning}</td><td>${p2.pruning}</td></tr>
+    <tr><td>Удобрения</td><td>${p1.fertilizer}</td><td>${p2.fertilizer}</td></tr>
+    <tr><td>Вредители</td><td>${p1.pest}</td><td>${p2.pest}</td></tr>
+    <tr><td>Почва</td><td>${p1.soil}</td><td>${p2.soil}</td></tr>
+    <tr><td>Морозостойкость</td><td>${p1.frost}</td><td>${p2.frost}</td></tr>
+    <tr><td>Цветение</td><td>${p1.flowering}</td><td>${p2.flowering}</td></tr></table>`;
+    document.getElementById('compareResult').innerHTML=res;
+}
 
-    // ---------- РАСТЕНИЯ ----------
-    function renderPlants() {
-        let search = document.getElementById('plantSearch')?.value.toLowerCase() || '';
-        let soilFilter = document.getElementById('plantFilterSoil')?.value || '';
-        let filtered = plantDB.filter(p => p.name.toLowerCase().includes(search) && (soilFilter === '' || p.soil === soilFilter));
-        let container = document.getElementById('plantsList');
-        if (!container) return;
-        container.innerHTML = filtered.map((p, idx) => `
-            <div class="col-md-6 col-lg-4">
-                <div class="plant-card">
-                    <h5><i class="fas fa-tree"></i> ${p.name}</h5>
-                    <div><strong>💧 Полив:</strong> ${p.watering}</div>
-                    <div><strong>✂️ Обрезка:</strong> ${p.pruning}</div>
-                    <div><strong>🌱 Удобрения:</strong> ${p.fertilizer}</div>
-                    <div><strong>🐛 Вредители:</strong> ${p.pest}</div>
-                    <div><strong>🌍 Почва:</strong> ${p.soil}</div>
-                    <div><strong>❄️ Морозостойкость:</strong> ${p.frost}</div>
-                    <div><strong>🌸 Цветение:</strong> ${p.flowering}</div>
-                    <button class="btn btn-sm btn-warning edit-plant" data-index="${idx}">Редактировать</button>
-                    <button class="btn btn-sm btn-danger delete-plant" data-index="${idx}">Удалить</button>
-                </div>
-            </div>
-        `).join('');
-        attachPlantEvents();
-    }
-    function attachPlantEvents() {
-        document.querySelectorAll('.edit-plant').forEach(btn => {
-            btn.onclick = () => {
-                let idx = parseInt(btn.dataset.index);
-                let p = plantDB[idx];
-                p.name = prompt("Название", p.name) || p.name;
-                p.watering = prompt("Полив", p.watering) || p.watering;
-                p.pruning = prompt("Обрезка", p.pruning) || p.pruning;
-                p.fertilizer = prompt("Удобрения", p.fertilizer) || p.fertilizer;
-                p.pest = prompt("Вредители", p.pest) || p.pest;
-                p.soil = prompt("Почва", p.soil) || p.soil;
-                p.frost = prompt("Морозостойкость", p.frost) || p.frost;
-                p.flowering = prompt("Цветение", p.flowering) || p.flowering;
-                saveAll(); renderPlants();
-            };
-        });
-        document.querySelectorAll('.delete-plant').forEach(btn => {
-            btn.onclick = () => { plantDB.splice(parseInt(btn.dataset.index),1); saveAll(); renderPlants(); };
-        });
-    }
-    function addPlant() {
-        let name = prompt("Название растения");
-        if (!name) return;
-        plantDB.push({
-            name, watering: prompt("Полив","не указано")||"не указано", pruning: prompt("Обрезка","не указано")||"не указано",
-            fertilizer: prompt("Удобрения","не указано")||"не указано", pest: prompt("Вредители","не указано")||"не указано",
-            soil: prompt("Почва","не указано")||"не указано", frost: prompt("Морозостойкость","не указано")||"не указано",
-            flowering: prompt("Цветение","не указано")||"не указано"
-        });
-        saveAll(); renderPlants();
-    }
+// Калькулятор полива
+function fillCalcPlants() { let sel=document.getElementById('calcPlant'); if(sel){ sel.innerHTML=plantDB.map(p=>`<option>${p.name}</option>`).join(''); } }
+function calcWater() { let plantName=document.getElementById('calcPlant').value; let amount=parseFloat(document.getElementById('calcAmount').value); let plant=plantDB.find(p=>p.name===plantName); if(!plant) return; let waterStr=plant.watering; let litersPerUnit=parseInt(waterStr.match(/\d+/)?.[0]||20); let total=litersPerUnit*amount; document.getElementById('calcResult').innerHTML=`💧 Для ${plantName} в количестве ${amount} шт(м²) требуется примерно ${total} литров воды. Норма: ${waterStr}`; }
 
-    // ---------- БЭКАП ----------
-    function exportAllData() { downloadFile(JSON.stringify({plants:plantDB, tasks, orders}, null,2), "backup.json", "application/json"); }
-    function importData(file) {
-        let reader = new FileReader();
-        reader.onload = e => {
-            try {
-                let data = JSON.parse(e.target.result);
-                if (data.plants) plantDB = data.plants;
-                if (data.tasks) tasks = data.tasks;
-                if (data.orders) orders = data.orders;
-                saveAll(); renderPlants(); renderTasks(); renderOrders();
-                alert("Данные восстановлены");
-            } catch(err) { alert("Ошибка файла"); }
-        };
-        reader.readAsText(file);
-    }
-    function resetAll() {
-        if (confirm("Удалить все пользовательские данные и восстановить стандартный справочник растений?")) {
-            plantDB = JSON.parse(JSON.stringify(defaultPlantDB));
-            tasks = [];
-            orders = [];
-            saveAll();
-            renderPlants(); renderTasks(); renderOrders();
-            alert("Данные сброшены к стандартным.");
-        }
-    }
+// Болезни
+function renderDiseases() { let search=document.getElementById('diseaseSearch')?.value.toLowerCase()||''; let filtered=diseasesDB.filter(d=>d.name.toLowerCase().includes(search)||d.plants.toLowerCase().includes(search)); let container=document.getElementById('diseasesList'); if(!container) return; container.innerHTML=filtered.map(d=>`<div class="disease-card"><h5>${d.name}</h5><div><strong>Симптомы:</strong> ${d.symptoms}</div><div><strong>Лечение:</strong> ${d.treatment}</div><div><strong>Поражаемые растения:</strong> ${d.plants}</div></div>`).join(''); }
 
-    function downloadFile(content, filename, mime) { let a = document.createElement('a'); let blob = new Blob([content], {type:mime}); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
+// Задачи
+function addTask(name,date,priority) { tasks.push({id:Date.now(),name,date,priority,completed:false}); saveAll(); renderTasks(); }
+function renderTasks() { let container=document.getElementById('tasksList'); if(!container) return; if(!tasks.length){container.innerHTML='<div class="text-muted">Нет задач</div>';return;} let sorted=[...tasks].sort((a,b)=>new Date(a.date)-new Date(b.date)); container.innerHTML=sorted.map(t=>`<div class="task-card"><input type="checkbox" class="task-checkbox" data-id="${t.id}" ${t.completed?'checked':''}> <span style="${t.completed?'text-decoration:line-through':''}"><strong>${t.name}</strong></span> <small>📅 ${t.date} | ⚡ ${t.priority}</small> <button class="btn btn-sm btn-outline-danger delete-task" data-id="${t.id}">Удалить</button></div>`).join(''); document.querySelectorAll('.task-checkbox').forEach(cb=>{cb.onchange=()=>{let t=tasks.find(t=>t.id===parseInt(cb.dataset.id)); if(t) t.completed=cb.checked; saveAll(); renderTasks();};}); document.querySelectorAll('.delete-task').forEach(btn=>{btn.onclick=()=>{tasks=tasks.filter(t=>t.id!==parseInt(btn.dataset.id)); saveAll(); renderTasks();};}); }
+function exportTasksCSV() { downloadFile("Задача,Дата,Приоритет,Выполнена\n"+tasks.map(t=>`"${t.name}",${t.date},${t.priority},${t.completed?"Да":"Нет"}`).join("\n"),"tasks.csv","text/csv"); }
 
-    // ЧАТ UI
-    function initChat() {
-        let input = document.getElementById('chatInput'), sendBtn = document.getElementById('sendChatBtn'), chatArea = document.getElementById('chatMessages');
-        function addMsg(text, isUser) { let div = document.createElement('div'); div.className = `message ${isUser ? 'user-msg' : 'bot-msg'}`; div.innerHTML = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div>`; chatArea.appendChild(div); chatArea.scrollTop = chatArea.scrollHeight; }
-        async function process() { let q = input.value.trim(); if(!q) return; addMsg(q, true); input.value = ''; let ans = getBotAnswer(q); addMsg(ans, false); if(ans.includes("Заявка") && ans.includes("создана")) renderOrders(); if(ans.includes("задача добавлена")) renderTasks(); }
-        sendBtn.onclick = process; input.onkeypress = e => { if(e.key === 'Enter') process(); };
-        let quickContainer = document.getElementById('quickButtonsContainer');
-        let quickList = ["Полив газона", "Обрезка деревьев", "Тля на липе", "Нормы для дуба", "Болезни роз", "Посадка берёзы", "заявка: Упавшее дерево", "задача: Полив на 2025-06-10", "/статистика", "/растения", "Сезонные советы"];
-        quickContainer.innerHTML = quickList.map(txt => `<button class="quick-btn" data-msg="${txt}">${txt}</button>`).join('');
-        document.querySelectorAll('.quick-btn').forEach(btn => { btn.onclick = () => { input.value = btn.getAttribute('data-msg'); process(); }; });
-        document.getElementById('randomTipBtn').onclick = () => { addMsg(randomTip(), false); };
-    }
+// Заявки
+function addOrder(desc,status) { orders.unshift({id:Date.now(),description:desc,status:status,date:new Date().toLocaleString()}); saveAll(); renderOrders(); }
+function renderOrders() { let filter=document.getElementById('orderFilter')?.value||'all'; let filtered=orders.filter(o=>filter==='all'||o.status===filter); let container=document.getElementById('ordersList'); if(!container) return; if(!filtered.length){container.innerHTML='<div class="alert alert-light">Нет заявок</div>';return;} container.innerHTML=filtered.map(o=>`<div class="order-item"><div><strong>#${o.id}</strong> <select class="status-select" data-id="${o.id}"><option ${o.status==='Черновик'?'selected':''}>Черновик</option><option ${o.status==='В работе'?'selected':''}>В работе</option><option ${o.status==='Выполнена'?'selected':''}>Выполнена</option></select></div><div>${o.description}</div><div class="small">${o.date}</div><button class="btn btn-sm btn-outline-danger delete-order" data-id="${o.id}">Удалить</button></div>`).join('');
+    document.querySelectorAll('.status-select').forEach(sel=>{sel.onchange=()=>{let id=parseInt(sel.dataset.id); let o=orders.find(o=>o.id===id); if(o) o.status=sel.value; saveAll(); renderOrders();};});
+    document.querySelectorAll('.delete-order').forEach(btn=>{btn.onclick=()=>{orders=orders.filter(o=>o.id!==parseInt(btn.dataset.id)); saveAll(); renderOrders();};});
+}
+function exportOrdersCSV() { downloadFile("ID,Описание,Статус,Дата\n"+orders.map(o=>`${o.id},"${o.description}",${o.status},${o.date}`).join("\n"),"orders.csv","text/csv"); }
+function clearCompletedOrders() { orders=orders.filter(o=>o.status!=='Выполнена'); saveAll(); renderOrders(); }
+function generateTextReport() { return `Заявок: ${orders.length}, выполнено ${orders.filter(o=>o.status==='Выполнена').length}\nЗадач: ${tasks.length}, выполнено ${tasks.filter(t=>t.completed).length}\nРастений: ${plantDB.length}`; }
 
-    // Тёмная тема
-    function initTheme() {
-        let toggle = document.getElementById('themeToggle');
-        if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark');
-        toggle.onclick = () => { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark') ? 'enabled' : 'disabled'); };
-    }
+// Бэкап
+function exportAllData() { downloadFile(JSON.stringify({plants:plantDB,tasks,orders,favorites},null,2),"backup.json","application/json"); }
+function importData(file) { let reader=new FileReader(); reader.onload=e=>{ try{ let data=JSON.parse(e.target.result); if(data.plants) plantDB=data.plants; if(data.tasks) tasks=data.tasks; if(data.orders) orders=data.orders; if(data.favorites) favorites=data.favorites; saveAll(); renderAll(); alert("Восстановлено"); }catch(err){alert("Ошибка файла");} }; reader.readAsText(file); }
+function resetAll() { if(confirm("Сбросить всё?")){ plantDB=JSON.parse(JSON.stringify(defaultPlantDB)); tasks=[]; orders=[]; favorites=[]; saveAll(); renderAll(); } }
+function renderAll() { renderPlants(); renderFavorites(); renderTasks(); renderOrders(); fillCompareSelects(); fillCalcPlants(); renderDiseases(); }
 
-    window.onload = () => {
-        initData();
-        initTheme();
-        initChat();
-        renderPlants();
-        renderTasks();
-        renderOrders();
-        renderSeasonal();
-        document.getElementById('plantSearch')?.addEventListener('input', renderPlants);
-        document.getElementById('plantFilterSoil')?.addEventListener('change', renderPlants);
-        document.getElementById('addPlantBtn')?.addEventListener('click', addPlant);
-        document.getElementById('addTaskBtn')?.addEventListener('click', () => { let name = document.getElementById('taskName').value, date = document.getElementById('taskDate').value, prio = document.getElementById('taskPriority').value; if(name && date) addCalendarTask(name, date, prio); else alert("Заполните поля"); document.getElementById('taskName').value = ''; });
-        document.getElementById('exportTasksBtn')?.addEventListener('click', exportTasksCSV);
-        document.getElementById('exportOrdersBtn')?.addEventListener('click', exportOrdersCSV);
-        document.getElementById('clearCompletedBtn')?.addEventListener('click', clearCompletedOrders);
-        document.getElementById('orderFilter')?.addEventListener('change', renderOrders);
-        document.getElementById('exportAllBtn')?.addEventListener('click', exportAllData);
-        document.getElementById('importBtn')?.addEventListener('click', () => document.getElementById('importFileInput').click());
-        document.getElementById('importFileInput')?.addEventListener('change', e => { if(e.target.files[0]) importData(e.target.files[0]); });
-        document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
-        document.getElementById('generateReportBtn')?.addEventListener('click', () => { alert(generateTextReport()); });
-    };
+// ЧАТ
+let chatAnswers = {
+    "полив газона":"💧 Норма полива газона: 20-25 л/м² в неделю.",
+    "обрезка деревьев":"✂️ Обрезка деревьев в Москве: ноябрь-март.",
+    "тля на липе":"🐛 От тли: Актеллик 2 мл/л, повторить через 10 дней.",
+    "мучнистая роса":"🍃 Лечение: Топаз или Скор, удалить поражённые листья.",
+    "зимний уход":"❄️ Укрытие роз, побелка стволов, мульчирование.",
+    "календарь работ июнь":"📅 Июнь: стрижка газонов каждые 10 дней, полив, прополка.",
+    "сезонные советы":"🌱 Смотрите вкладку 'Сезонные советы' (в чате команда 'сезонные советы')."
+};
+function getBotAnswer(q) {
+    let low=q.toLowerCase();
+    if(low==="/помощь") return "Команды: заявка: текст, задача: описание на ГГГГ-ММ-ДД, нормы для ..., болезни ..., посадка ..., /статистика, /растения, /отчёт, сезонные советы";
+    if(low==="/статистика") return `📊 ${generateTextReport()}`;
+    if(low==="/растения") return "🌿 Список растений: "+plantDB.map(p=>p.name).join(", ");
+    if(low==="/отчёт") return generateTextReport();
+    if(low.includes("сезонные советы")) { let month=new Date().getMonth(); let advice=["Янв: проверка укрытий","Фев: обрезка","Март: снятие укрытий","Апр: уборка","Май: полив","Июнь: стрижка","Июль: борьба","Авг: ремонт","Сен: посадка","Окт: укрытие","Ноя: обрезка","Дек: защита"][month]; return `🌱 Сезонный совет: ${advice}`; }
+    if(low.startsWith("заявка:")) { let desc=low.replace("заявка:","").trim(); if(desc) { addOrder(desc,"Черновик"); return `✅ Заявка "${desc}" создана.`; } else return "Укажите описание."; }
+    if(low.startsWith("задача:")) { let parts=low.replace("задача:","").trim().split(" на "); if(parts.length===2) { addTask(parts[0].trim(),parts[1].trim(),"Обычная"); return `📌 Задача добавлена на ${parts[1]}.`; } else return "Формат: задача: Полив на 2025-06-01"; }
+    if(low.startsWith("нормы для")) { let name=low.replace("нормы для","").trim(); let p=plantDB.find(p=>p.name.toLowerCase().includes(name)); if(p) return `🌿 ${p.name}: полив ${p.watering}, обрезка ${p.pruning}, удобрения ${p.fertilizer}, вредители ${p.pest}`; else return `Растение "${name}" не найдено.`; }
+    if(low.startsWith("болезни")) { let name=low.replace("болезни","").trim(); let d=diseasesDB.find(d=>d.plants.toLowerCase().includes(name)); if(d) return `🩺 ${d.name}: ${d.symptoms}. Лечение: ${d.treatment}`; else return "Болезни не найдены."; }
+    if(low.startsWith("посадка")) { let name=low.replace("посадка","").trim(); let p=plantDB.find(p=>p.name.toLowerCase().includes(name)); if(p) return `🌱 Посадка ${p.name}: яма 60x60, дренаж, полив после посадки.`; else return "Растение не найдено."; }
+    for(let [key,val] of Object.entries(chatAnswers)) if(low.includes(key)) return val;
+    return "Уточните вопрос или используйте /помощь. Я могу подсказать по поливу, обрезке, вредителям, болезням, посадке.";
+}
+function initChat() {
+    let input=document.getElementById('chatInput'), sendBtn=document.getElementById('sendChatBtn'), chatArea=document.getElementById('chatMessages');
+    function addMsg(text,isUser){ let div=document.createElement('div'); div.className=`message ${isUser?'user-msg':'bot-msg'}`; div.innerHTML=`<div class="bubble">${text.replace(/\n/g,'<br>')}</div>`; chatArea.appendChild(div); chatArea.scrollTop=chatArea.scrollHeight; }
+    async function process(){ let q=input.value.trim(); if(!q) return; addMsg(q,true); input.value=''; let ans=getBotAnswer(q); addMsg(ans,false); if(ans.includes("Заявка")&&ans.includes("создана")) renderOrders(); if(ans.includes("задача добавлена")) renderTasks(); }
+    sendBtn.onclick=process; input.onkeypress=e=>{if(e.key==='Enter')process();};
+    let quickContainer=document.getElementById('quickButtonsContainer');
+    let quickList=["Полив газона","Обрезка деревьев","Тля на липе","Нормы для дуба","Болезни роз","Посадка берёзы","заявка: Упавшая ветка","задача: Полив на 2025-06-10","/статистика","сезонные советы"];
+    quickContainer.innerHTML=quickList.map(txt=>`<button class="quick-btn" data-msg="${txt}">${txt}</button>`).join('');
+    document.querySelectorAll('.quick-btn').forEach(btn=>{btn.onclick=()=>{input.value=btn.dataset.msg;process();};});
+    document.getElementById('randomTipBtn').onclick=()=>{let tips=["Поливайте утром или вечером","Мульчируйте почву","Осенью убирайте листву","Подкармливайте растения"]; addMsg(tips[Math.floor(Math.random()*tips.length)],false);};
+}
+
+// Тёмная тема
+function initTheme(){ let toggle=document.getElementById('themeToggle'); if(localStorage.getItem('darkMode')==='enabled') document.body.classList.add('dark'); toggle.onclick=()=>{ document.body.classList.toggle('dark'); localStorage.setItem('darkMode',document.body.classList.contains('dark')?'enabled':'disabled'); }; }
+
+// Уведомления о задачах на сегодня
+function notifyTasks() { let today=new Date().toISOString().slice(0,10); let todayTasks=tasks.filter(t=>t.date===today && !t.completed); if(todayTasks.length) alert(`📢 Напоминание: на сегодня ${todayTasks.length} задач(а): ${todayTasks.map(t=>t.name).join(", ")}`); }
+
+function downloadFile(content,filename,mime){let a=document.createElement('a');let blob=new Blob([content],{type:mime});a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);}
+function printReport(){ window.print(); }
+
+window.onload=()=>{
+    initData();
+    initTheme();
+    initChat();
+    renderAll();
+    document.getElementById('addPlantBtn').onclick=()=>{ let name=prompt("Название"); if(name) plantDB.push({name,watering:"?",pruning:"?",fertilizer:"?",pest:"?",soil:"?",frost:"?",flowering:"?"}); saveAll(); renderPlants(); };
+    document.getElementById('addTaskBtn').onclick=()=>{ let name=document.getElementById('taskName').value, date=document.getElementById('taskDate').value, prio=document.getElementById('taskPriority').value; if(name&&date) addTask(name,date,prio); else alert("Заполните поля"); document.getElementById('taskName').value=''; };
+    document.getElementById('exportTasksBtn').onclick=exportTasksCSV;
+    document.getElementById('exportOrdersBtn').onclick=exportOrdersCSV;
+    document.getElementById('clearCompletedBtn').onclick=clearCompletedOrders;
+    document.getElementById('generateReportBtn').onclick=()=>alert(generateTextReport());
+    document.getElementById('exportAllBtn').onclick=exportAllData;
+    document.getElementById('importBtn').onclick=()=>document.getElementById('importFileInput').click();
+    document.getElementById('importFileInput').onchange=e=>{if(e.target.files[0]) importData(e.target.files[0]);};
+    document.getElementById('resetAllBtn').onclick=resetAll;
+    document.getElementById('printReportBtn').onclick=printReport;
+    document.getElementById('compareBtn').onclick=comparePlants;
+    document.getElementById('calcWaterBtn').onclick=calcWater;
+    document.getElementById('plantSearch').oninput=renderPlants;
+    document.getElementById('plantFilterSoil').onchange=renderPlants;
+    document.getElementById('orderFilter').onchange=renderOrders;
+    document.getElementById('diseaseSearch').oninput=renderDiseases;
+    fillCompareSelects(); fillCalcPlants(); renderDiseases();
+    notifyTasks();
+};
 </script>
 </body>
 </html>
